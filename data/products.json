@@ -1,0 +1,80 @@
+{
+  "name": "Marketplace Product",
+  "description": "An item for sale in the marketplace.",
+  "displayField": "productName",
+  "fields": [
+    {
+      "id": "productName",
+      "name": "Product Name",
+      "type": "Symbol",
+      "localized": false,
+      "required": true,
+      "validations": [],
+      "disabled": false,
+      "omitted": false
+    },
+    {
+      "id": "productDescription",
+      "name": "Product Description",
+      "type": "Text",
+      "localized": false,
+      "required": true,
+      "validations": [],
+      "disabled": false,
+      "omitted": false
+    },
+    {
+      "id": "category",
+      "name": "category",
+      "type": "Symbol",
+      "localized": false,
+      "required": false,
+      "validations": [
+        {
+          "in": [
+            "Functional Art",
+            "Mini Slabbers",
+            "Misfit Minis (3D Prints)",
+            "Oracle, Divination & Lore",
+            "Paintings, Print & Stickers",
+            "Sculptures & Desert Artifacts",
+            "Wearables & Textiles"
+          ]
+        }
+      ],
+      "disabled": false,
+      "omitted": false
+    },
+    {
+      "id": "sku",
+      "name": "SKU",
+      "type": "Integer",
+      "localized": false,
+      "required": false,
+      "validations": [
+        {
+          "unique": true
+        }
+      ],
+      "disabled": false,
+      "omitted": false
+    },
+    {
+      "id": "tags",
+      "name": "Tags",
+      "type": "Array",
+      "localized": false,
+      "required": false,
+      "validations": [],
+      "disabled": false,
+      "omitted": false,
+      "items": {
+        "type": "Symbol",
+        "validations": []
+      }
+    },
+    {
+      "id": "subcategory",
+      "name": "Subcategory",
+      "type": "Symbol",
+      "localized": false,
