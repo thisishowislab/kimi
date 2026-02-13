@@ -2,7 +2,7 @@ name: Deploy to Vercel
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
 
 jobs:
   deploy:
@@ -10,14 +10,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-        
-      - name: Pull Vercel Environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        
-      - name: Build
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        
-      - name: Deploy
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Build data from Contentful
+        run: node api/build-data.js
+        env:
+          CONTENTFUL_SPACE_ID: nfc5otagjk9d
+          CONTENTFUL_ACCESS_TOKEN: JFsw_veGXggiZ9v-GrBalkeJlyaVtAp7rFrCvc5rvnE
+      
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID }}
+          vercel-project-id: ${{ secrets.PROJECT_ID }}
+          vercel-args: '--prod'
