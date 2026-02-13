@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the manifestorium | tours</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; }
+        .serif { font-family: 'Cinzel', serif; }
+        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="min-h-screen pb-24">
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
+            <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase">
+                <a href="/store.html" class="hover:text-cyan-400">Artifacts</a>
+                <a href="/tours.html" class="text-cyan-400">Tours</a>
+                <a href="/donations.html" class="hover:text-cyan-400">Donate</a>
+                <a href="/field-notes.html" class="hover:text-cyan-400">Field Notes</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-24 px-6 max-w-4xl mx-auto">
+        <h1 class="serif text-5xl mb-4 text-center">Bus Tours</h1>
+        <p class="text-center text-gray-500 mb-16">Experience the portals firsthand. No shipping required.</p>
+
+        <div class="space-y-8" id="tours-list"></div>
+    </main>
+
+    <script>
+        async function load() {
+            const res = await fetch('/data/tours.json');
+            const tours = await res.json();
+            
+            document.getElementById('tours-list').innerHTML = tours.map(t => `
+                <div class="glass p-8 rounded-lg flex flex-col md:flex-row gap-8 items-center">
+                    <div class="w-full md:w-48 h-48 flex-shrink-0">
+                        <img src="${t.image}" class="w-full h-full object-cover rounded">
+                    </div>
+                    <div class="flex-grow text-center md:text-left">
+                        <h3 class="serif text-2xl text-white mb-2">${t.tourName}</h3>
+                        <p class="text-gray-400 mb-4">${t.tourDescription}</p>
+                        <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                            <span class="text-3xl text-white">$${t.price}</span>
+                            <button onclick="bookTour('${t.stripePriceId}', ${t.price})" class="px-8 py-3 bg-white text-black font-bold uppercase tracking-widest hover:bg-cyan-400 transition">
+                                Book Now
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-purple-400 mt-2 uppercase tracking-widest">Digital ticket • No shipping</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function bookTour(priceId, price) {
+            const res = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: [{ stripePriceId: priceId, quantity: 1 }],
+                    type: 'tour'
+                })
+            });
+            const data = await res.json();
+            if (data.url) window.location = data.url;
+        }
+
+        load();
+    </script>
+</body>
+</html>
