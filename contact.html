@@ -12,6 +12,10 @@
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         input, textarea, select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
         input:focus, textarea:focus, select:focus { outline: none; border-color: #b026ff; }
+        .gradient-text { background: linear-gradient(135deg, #fff 0%, #b026ff 50%, #00f3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #00f3ff; transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
     </style>
 </head>
 <body class="min-h-screen pb-24">
@@ -43,7 +47,7 @@
 
             <div>
                 <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">Transmission Type</label>
-                <select class="w-full px-4 py-3 rounded bg-white/5 border border-white/20 focus:border-purple-500 transition text-gray-300">
+                <select class="w-full px-4 py-3 rounded bg-purple/5 border border-white/20 focus:border-purple-500 transition text-gray-300">
                     <option>General Inquiry</option>
                     <option>Propose Exchange</option>
                     <option>Report Portal Malfunction</option>
@@ -61,15 +65,19 @@
                 Transmit Signal
             </button>
 
-            <p class="text-xs text-gray-600 text-center">Note: We do not have reliable mail service. Physical letters should be left at the Range mailbox.</p>
+            <p class="text-xs text-gray-600 text-center">Note: We do exist off-grid and service is as questionable as reality. 
+                Physical letters should be mailed to:
+                Epiphanie Adams
+                @ Main Character 
+                Niland, CA 92257</p>
         </form>
 
         <div class="mt-16 text-center">
-            <p class="text-gray-500 mb-4">Or find us physically</p>
+            <p class="text-gray-500 mb-4">Or find us in the real simulation</p>
             <div class="glass inline-block px-8 py-4 rounded-lg">
                 <p class="text-white">The Manifestorium Bus</p>
-                <p class="text-gray-400 text-sm">East Jesus, Slab City, CA</p>
-                <p class="text-cyan-400 text-xs mt-2 uppercase tracking-widest">GPS: 33.2591° N, 115.4658° W</p>
+                <p class="text-gray-400 text-sm">just past Salvation Mountain in Slab City, California</p>
+                <p class="text-cyan-400 text-xs mt-2 uppercase tracking-widest">GPS: 33.2555° N, 115.4710° W</p>
             </div>
         </div>
     </main>
