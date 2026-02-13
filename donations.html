@@ -60,45 +60,61 @@
         function toggleMobileNav() {
             document.getElementById('mobile-nav').classList.toggle('hidden');
         }
-
-        async function load() {
-            try {
-                const res = await fetch('/data/donations.json');
-                const tiers = await res.json();
-                
-                if (tiers.length === 0) {
-                    document.getElementById('tiers-list').innerHTML = '<p class="text-gray-600 col-span-2 text-center py-12">No donation tiers available.</p>';
-                    return;
-                }
-                
-                document.getElementById('tiers-list').innerHTML = tiers.map(t => `
-                    <div class="tier-card glass p-8 rounded-lg text-center">
-                        <h3 class="serif text-2xl text-white mb-4">${t.tierName}</h3>
-                        <p class="text-gray-400 mb-6 text-sm">${t.tierDescription}</p>
-                        <div class="text-4xl text-white mb-6">$${t.price}</div>
-                        <button onclick="donate('${t.stripePriceId}')" class="w-full py-3 border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white transition uppercase tracking-widest">
-                            Contribute
-                        </button>
-                        <p class="text-[10px] text-gray-600 mt-4 uppercase tracking-widest">No shipping • Direct support</p>
-                    </div>
-                `).join('');
-            } catch (e) {
-                document.getElementById('tiers-list').innerHTML = '<p class="text-red-400 col-span-2 text-center py-12">Error loading donation tiers.</p>';
-            }
+async function load() {
+    try {
+        const spaceId = '{{CONTENTFUL_SPACE_ID}}';
+        const accessToken = '{{CONTENTFUL_TOKEN}}';
+        const contentType = '5YmWnOsbaqjCb367hRLpST';
+        
+        const res = await fetch(
+            `https://cdn.contentful.com/spaces/${spaceId}/entries?content_type=${contentType}&order=fields.price`,
+            { headers: { 'Authorization': `Bearer ${accessToken}` } }
+        );
+        
+        const data = await res.json();
+        const tiers = data.items.map(item => ({
+            tierName: item.fields.tierName,
+            tierDescription: item.fields.tierDescription,
+            price: item.fields.price,
+            stripePriceId: item.fields.stripePriceId
+        }));
+        
+        if (tiers.length === 0) {
+            document.getElementById('tiers-list').innerHTML = '<p class="text-gray-600 col-span-2 text-center py-12">No donation tiers available.</p>';
+            return;
         }
+        
+        document.getElementById('tiers-list').innerHTML = tiers.map(t => `
+            <div class="tier-card glass p-8 rounded-lg text-center">
+                <h3 class="serif text-2xl text-white mb-4">${t.tierName}</h3>
+                <p class="text-gray-400 mb-6 text-sm">${t.tierDescription}</p>
+                <div class="text-4xl text-white mb-6">$${t.price}</div>
+                <button onclick="donate('${t.stripePriceId}')" class="w-full py-3 border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white transition uppercase tracking-widest">
+                    Contribute
+                </button>
+                <p class="text-[10px] text-gray-600 mt-4 uppercase tracking-widest">No shipping • Direct support</p>
+            </div>
+        `).join('');
+        
+    } catch (e) {
+        console.error(e);
+        document.getElementById('tiers-list').innerHTML = '<p class="text-red-400 col-span-2 text-center py-12">Error loading donation tiers.</p>';
+    }
+}
 
-        async function donate(priceId) {
-            const res = await fetch('/api/stripe/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    items: [{ stripePriceId: priceId, quantity: 1 }],
-                    type: 'donation'
-                })
-            });
-            const data = await res.json();
-            if (data.url) window.location = data.url;
-        }
+async function donate(priceId) {
+    const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            items: [{ stripePriceId: priceId, quantity: 1 }],
+            type: 'donation',
+            shipping: false
+        })
+    });
+    const data = await res.json();
+    if (data.url) window.location = data.url;
+}
 
         load();
     </script>
