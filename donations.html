@@ -12,4 +12,58 @@
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .tier-card:hover { box-shadow: 0 0 40px rgba(176,38,255,0.2); }
     </style>
-</
+</head>
+<body class="min-h-screen pb-24">
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
+            <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase">
+                <a href="/store.html" class="hover:text-cyan-400">Artifacts</a>
+                <a href="/tours.html" class="hover:text-cyan-400">Tours</a>
+                <a href="/donations.html" class="text-cyan-400">Donate</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-24 px-6 max-w-4xl mx-auto">
+        <h1 class="serif text-5xl mb-4 text-center">Support the Bus</h1>
+        <p class="text-center text-gray-500 mb-16">Fuel the portals. Keep the Mini Slabbers fed.</p>
+
+        <div class="grid md:grid-cols-2 gap-8" id="tiers-list"></div>
+    </main>
+
+    <script>
+        async function load() {
+            const res = await fetch('/data/donations.json');
+            const tiers = await res.json();
+            
+            document.getElementById('tiers-list').innerHTML = tiers.map(t => `
+                <div class="tier-card glass p-8 rounded-lg text-center">
+                    <h3 class="serif text-2xl text-white mb-4">${t.tierName}</h3>
+                    <p class="text-gray-400 mb-6 text-sm">${t.tierDescription}</p>
+                    <div class="text-4xl text-white mb-6">$${t.price}</div>
+                    <button onclick="donate('${t.stripePriceId}')" class="w-full py-3 border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white transition uppercase tracking-widest">
+                        Contribute
+                    </button>
+                    <p class="text-[10px] text-gray-600 mt-4 uppercase tracking-widest">No shipping • Direct support</p>
+                </div>
+            `).join('');
+        }
+
+        async function donate(priceId) {
+            const res = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: [{ stripePriceId: priceId, quantity: 1 }],
+                    type: 'donation'
+                })
+            });
+            const data = await res.json();
+            if (data.url) window.location = data.url;
+        }
+
+        load();
+    </script>
+</body>
+</html>
