@@ -11,18 +11,44 @@
         .serif { font-family: 'Cinzel', serif; }
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .product-card:hover { box-shadow: 0 0 40px rgba(176,38,255,0.2); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #00f3ff; transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
     </style>
 </head>
 <body class="min-h-screen pb-24">
+    <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
-            <div class="flex items-center gap-6">
-                <a href="/store.html" class="text-cyan-400 text-sm uppercase tracking-widest">Artifacts</a>
-                <button onclick="toggleCart()" class="relative">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                    <span id="cart-badge" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs w-5 h-5 rounded-full hidden flex items-center justify-center">0</span>
-                </button>
+            
+            <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase items-center">
+                <a href="/store.html" class="nav-link text-cyan-400">Artifacts</a>
+                <a href="/tours.html" class="nav-link hover:text-cyan-400 transition">Tours</a>
+                <a href="/field-notes.html" class="nav-link hover:text-cyan-400 transition">Field Notes</a>
+                <a href="/donations.html" class="nav-link text-purple-400 hover:text-purple-300 transition">Support</a>
+                <a href="/faq.html" class="nav-link hover:text-cyan-400 transition">FAQ</a>
+                <a href="/contact.html" class="nav-link hover:text-cyan-400 transition">Contact</a>
+            </div>
+
+            <button onclick="toggleCart()" id="cart-btn" class="relative hidden">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+            </button>
+
+            <button onclick="toggleMobileNav()" class="md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+        </div>
+
+        <div id="mobile-nav" class="hidden md:hidden border-t border-white/10 bg-black/95">
+            <div class="px-6 py-4 space-y-4 text-sm uppercase tracking-widest">
+                <a href="/store.html" class="block text-cyan-400">Artifacts</a>
+                <a href="/tours.html" class="block hover:text-cyan-400">Tours</a>
+                <a href="/field-notes.html" class="block hover:text-cyan-400">Field Notes</a>
+                <a href="/donations.html" class="block text-purple-400">Support</a>
+                <a href="/faq.html" class="block hover:text-cyan-400">FAQ</a>
+                <a href="/contact.html" class="block hover:text-cyan-400">Contact</a>
             </div>
         </div>
     </nav>
@@ -34,10 +60,13 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6">
-        <div id="product-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        <div id="product-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <p class="text-gray-600 col-span-3 text-center py-12">Summoning artifacts from the void...</p>
+        </div>
     </main>
 
-    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-96 bg-[#0a0a0a] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+    <!-- Cart drawer -->
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-96 bg-[#0a0a0a] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[60] flex flex-col">
         <div class="p-6 border-b border-white/10 flex justify-between">
             <h3 class="serif">Collection</h3>
             <button onclick="toggleCart()" class="text-gray-400 hover:text-white">✕</button>
@@ -53,21 +82,34 @@
             </button>
         </div>
     </div>
-    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity"></div>
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[55] hidden opacity-0 transition-opacity"></div>
 
     <script>
+        function toggleMobileNav() {
+            document.getElementById('mobile-nav').classList.toggle('hidden');
+        }
+
         let allProducts = [], currentFilter = 'all';
         const categories = ['All', 'Functional Art', 'Mini Slabbers', 'Misfit Minis (3D Prints)', 'Oracle, Divination & Lore', 'Paintings, Print & Stickers', 'Sculptures & Desert Artifacts', 'Wearables & Textiles'];
 
         async function load() {
-            const res = await fetch('/data/products.json');
-            allProducts = await res.json();
-            
-            document.getElementById('filters').innerHTML = categories.map(c => `
-                <button onclick="setFilter('${c}')" class="filter-btn px-4 py-2 border border-white/20 text-sm uppercase tracking-widest ${c === 'All' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}">${c}</button>
-            `).join('');
-            
-            render();
+            try {
+                const res = await fetch('/data/products.json');
+                allProducts = await res.json();
+                
+                if (allProducts.length === 0) {
+                    document.getElementById('product-grid').innerHTML = '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts found. Check back later.</p>';
+                    return;
+                }
+                
+                document.getElementById('filters').innerHTML = categories.map(c => `
+                    <button onclick="setFilter('${c}')" class="filter-btn px-4 py-2 border border-white/20 text-sm uppercase tracking-widest ${c === 'All' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}">${c}</button>
+                `).join('');
+                
+                render();
+            } catch (e) {
+                document.getElementById('product-grid').innerHTML = '<p class="text-red-400 col-span-3 text-center py-12">Error loading artifacts. The void is unresponsive.</p>';
+            }
         }
 
         function setFilter(f) {
@@ -83,6 +125,12 @@
 
         function render() {
             const items = currentFilter === 'All' ? allProducts : allProducts.filter(p => p.category === currentFilter);
+            
+            if (items.length === 0) {
+                document.getElementById('product-grid').innerHTML = '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts in this category.</p>';
+                return;
+            }
+            
             document.getElementById('product-grid').innerHTML = items.map(p => {
                 const minPrice = Math.min(...Object.values(p.variants).map(v => v.price));
                 const hasVariants = Object.keys(p.variants).length > 1;
@@ -123,8 +171,15 @@
 
         function updateCartUI() {
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            document.getElementById('cart-badge').textContent = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cart-badge').classList.toggle('hidden', !cart.length);
+            const btn = document.getElementById('cart-btn');
+            
+            if (cart.length > 0) {
+                btn.classList.remove('hidden');
+                document.getElementById('cart-badge').textContent = cart.reduce((s, i) => s + i.qty, 0);
+            } else {
+                btn.classList.add('hidden');
+            }
+            
             document.getElementById('cart-total').textContent = '$' + cart.reduce((s, i) => s + (i.price * i.qty), 0).toFixed(2);
             document.getElementById('cart-items').innerHTML = cart.length ? cart.map((i, idx) => `
                 <div class="flex gap-4 bg-white/5 p-3 rounded mb-2">
@@ -154,7 +209,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     items: cart.map(i => ({ stripePriceId: i.stripePriceId, quantity: i.qty })),
-                    type: cart.some(i => i.shipping) ? 'product' : 'digital'
+                    type: 'product'
                 })
             });
             const data = await res.json();
