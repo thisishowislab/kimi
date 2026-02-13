@@ -2,7 +2,6 @@
   "name": "manifestorium",
   "version": "1.0.0",
   "dependencies": {
-    "contentful": "^10.6.0",
     "stripe": "^14.5.0"
   }
 }
