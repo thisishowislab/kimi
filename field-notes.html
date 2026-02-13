@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the manifestorium | field notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; }
+        .serif { font-family: 'Cinzel', serif; }
+        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .note-card:hover { transform: translateY(-4px); }
+    </style>
+</head>
+<body class="min-h-screen pb-24">
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
+            <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase">
+                <a href="/store.html" class="hover:text-cyan-400">Artifacts</a>
+                <a href="/field-notes.html" class="text-cyan-400">Field Notes</a>
+                <a href="/community.html" class="hover:text-cyan-400">Community</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-32 pb-12 px-6 text-center">
+        <h1 class="serif text-5xl mb-4">Field Notes</h1>
+        <p class="text-gray-500 max-w-xl mx-auto">Observations from the edge. Desert phenomena, fabrication logs, and bus maintenance reports.</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 pb-24">
+        <div class="grid md:grid-cols-2 gap-8" id="notes-grid"></div>
+    </main>
+
+    <script>
+        function formatDate(d) {
+            return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function renderRichText(doc) {
+            if (!doc || !doc.content) return '';
+            return doc.content.map(node => {
+                if (node.nodeType === 'paragraph') {
+                    const text = node.content.map(c => {
+                        let t = c.value || '';
+                        if (c.marks?.some(m => m.type === 'bold')) t = `<strong>${t}</strong>`;
+                        if (c.marks?.some(m => m.type === 'italic')) t = `<em>${t}</em>`;
+                        return t;
+                    }).join('');
+                    return `<p class="mb-4">${text}</p>`;
+                }
+                return '';
+            }).join('');
+        }
+
+        async function load() {
+            const res = await fetch('/data/posts.json');
+            const posts = await res.json();
+            
+            document.getElementById('notes-grid').innerHTML = posts.map(p => `
+                <article class="note-card glass rounded-lg overflow-hidden transition-all duration-300 cursor-pointer group">
+                    <div class="h-48 overflow-hidden">
+                        <img src="${p.heroImage}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-4 mb-3 text-xs uppercase tracking-widest">
+                            <span class="text-cyan-400">${p.tags?.[0] || 'Note'}</span>
+                            <span class="text-gray-600">${formatDate(p.publishedDate)}</span>
+                        </div>
+                        <h2 class="serif text-xl text-white mb-3 group-hover:text-purple-300 transition">${p.title}</h2>
+                        <p class="text-gray-400 text-sm">${p.excerpt}</p>
+                        <a href="/field-notes/${p.slug}.html" class="mt-4 inline-block text-xs text-gray-500 group-hover:text-white transition">Read entry →</a>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        load();
+    </script>
+</body>
+</html>
