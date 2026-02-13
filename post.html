@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; }
+        .serif { font-family: 'Cinzel', serif; }
+        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .prose p { margin-bottom: 1.5em; line-height: 1.8; color: #d0d0d0; }
+        .prose h2 { font-family: 'Cinzel', serif; color: white; margin: 2em 0 1em; font-size: 1.5rem; }
+        .prose strong { color: white; }
+        .prose em { color: #b026ff; }
+    </style>
+</head>
+<body class="min-h-screen pb-24">
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
+            <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase">
+                <a href="/field-notes.html" class="text-cyan-400">← All Notes</a>
+            </div>
+        </div>
+    </nav>
+
+    <article class="pt-24 max-w-3xl mx-auto px-6 py-12">
+        <div id="loading" class="text-center py-24">
+            <div class="w-12 h-12 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+
+        <div id="post" class="hidden">
+            <header class="mb-12 text-center">
+                <div class="flex items-center justify-center gap-4 mb-4 text-xs uppercase tracking-widest text-gray-500">
+                    <span id="post-tag" class="text-cyan-400">Note</span>
+                    <span>•</span>
+                    <span id="post-date"></span>
+                </div>
+                <h1 id="post-title" class="serif text-4xl md:text-5xl mb-8"></h1>
+                <img id="post-image" src="" class="w-full h-64 md:h-96 object-cover rounded-lg">
+            </header>
+
+            <div id="post-body" class="prose text-lg"></div>
+
+            <div class="mt-16 pt-8 border-t border-white/10 flex justify-between items-center">
+                <a href="/field-notes.html" class="text-sm text-gray-400 hover:text-white transition">← Back to Field Notes</a>
+                <div id="post-tags" class="flex gap-2"></div>
+            </div>
+        </div>
+
+        <div id="not-found" class="hidden text-center py-24">
+            <h2 class="serif text-3xl mb-4">Entry Not Found</h2>
+            <a href="/field-notes.html" class="text-cyan-400 hover:text-white">Browse all notes</a>
+        </div>
+    </article>
+
+    <script>
+        const slug = new URLSearchParams(window.location.search).get('slug') || window.location.pathname.split('/').pop().replace('.html', '');
+
+        function formatDate(d) {
+            return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function renderRichText(doc) {
+            if (!doc || !doc.content) return '';
+            return doc.content.map(node => {
+                if (node.nodeType === 'paragraph') {
+                    const text = node.content.map(c => {
+                        let t = c.value || '';
+                        if (c.marks?.some(m => m.type === 'bold')) t = `<strong>${t}</strong>`;
+                        if (c.marks?.some(m => m.type === 'italic')) t = `<em>${t}</em>`;
+                        return t;
+                    }).join('');
+                    return `<p>${text}</p>`;
+                }
+                if (node.nodeType === 'heading-2') {
+                    const text = node.content.map(c => c.value).join('');
+                    return `<h2>${text}</h2>`;
+                }
+                return '';
+            }).join('');
+        }
+
+        async function load() {
+            const res = await fetch('/data/posts.json');
+            const posts = await res.json();
+            const post = posts.find(p => p.slug === slug);
+
+            if (!post) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('not-found').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('post').classList.remove('hidden');
+            document.title = `${post.title} | the manifestorium`;
+
+            document.getElementById('post-title').textContent = post.title;
+            document.getElementById('post-date').textContent = formatDate(post.publishedDate);
+            document.getElementById('post-tag').textContent = post.tags?.[0] || 'Note';
+            document.getElementById('post-image').src = post.heroImage;
+            document.getElementById('post-body').innerHTML = renderRichText(post.body);
+            
+            if (post.tags?.length > 1) {
+                document.getElementById('post-tags').innerHTML = post.tags.slice(1).map(t => 
+                    `<span class="text-xs text-gray-500 uppercase tracking-widest">#${t}</span>`
+                ).join('');
+            }
+        }
+
+        load();
+    </script>
+</body>
+</html>
