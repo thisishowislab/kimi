@@ -93,25 +93,46 @@
         let allProducts = [], currentFilter = 'all';
         const categories = ['All', 'Functional Art', 'Mini Slabbers', 'Misfit Minis (3D Prints)', 'Oracle, Divination & Lore', 'Paintings, Print & Stickers', 'Sculptures & Desert Artifacts', 'Wearables & Textiles'];
 
-        async function load() {
-            try {
-                const res = await fetch('/data/products.json');
-                allProducts = await res.json();
-                
-                if (allProducts.length === 0) {
-                    document.getElementById('product-grid').innerHTML = '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts found. Check back later.</p>';
-                    return;
-                }
-                
-                document.getElementById('filters').innerHTML = categories.map(c => `
-                    <button onclick="setFilter('${c}')" class="filter-btn px-4 py-2 border border-white/20 text-sm uppercase tracking-widest ${c === 'All' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}">${c}</button>
-                `).join('');
-                
-                render();
-            } catch (e) {
-                document.getElementById('product-grid').innerHTML = '<p class="text-red-400 col-span-3 text-center py-12">Error loading artifacts. The void is unresponsive.</p>';
-            }
-        }
+    async function load() {
+  try {
+    const res = await fetch('/data/products.json', { cache: "no-store" });
+
+    // If it isn't JSON (or it's an error page), this will catch it cleanly
+    const raw = await res.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      console.log("products.json was not valid JSON. First 200 chars:", raw.slice(0, 200));
+      throw new Error("products.json not JSON");
+    }
+
+    // Accept either:
+    // 1) array of products: [ {...}, {...} ]
+    // 2) Contentful snapshot: { items: [...], includes: {...} }
+    allProducts = Array.isArray(data) ? data : (data.items || []);
+
+    console.log("Loaded products count:", allProducts.length);
+    console.log("First product:", allProducts[0]);
+
+    if (allProducts.length === 0) {
+      document.getElementById('product-grid').innerHTML =
+        '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts found. Check back later.</p>';
+      return;
+    }
+
+    document.getElementById('filters').innerHTML = categories.map(c => `
+      <button onclick="setFilter('${c}')" class="filter-btn px-4 py-2 border border-white/20 text-sm uppercase tracking-widest ${c === 'All' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}">${c}</button>
+    `).join('');
+
+    render();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('product-grid').innerHTML =
+      '<p class="text-red-400 col-span-3 text-center py-12">Error loading artifacts. The void is unresponsive.</p>';
+  }
+}
+
 
         function setFilter(f) {
             currentFilter = f;
