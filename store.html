@@ -10,6 +10,7 @@
         body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; }
         .serif { font-family: 'Cinzel', serif; }
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+         .gradient-text { background: linear-gradient(135deg, #fff 0%, #b026ff 50%, #00f3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .product-card:hover { box-shadow: 0 0 40px rgba(176,38,255,0.2); }
         .nav-link { position: relative; }
         .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #00f3ff; transition: width 0.3s; }
@@ -89,26 +90,134 @@
             document.getElementById('mobile-nav').classList.toggle('hidden');
         }
 
-        let allProducts = [], currentFilter = 'all';
-        const categories = ['All', 'Functional Art', 'Mini Slabbers', 'Misfit Minis (3D Prints)', 'Oracle, Divination & Lore', 'Paintings, Print & Stickers', 'Sculptures & Desert Artifacts', 'Wearables & Textiles'];
+        let allProducts = [];
+        let currentFilter = 'All';
+
+        const categories = [
+            'All',
+            'Functional Art',
+            'Mini Slabbers',
+            'Misfit Minis (3D Prints)',
+            'Oracle, Divination & Lore',
+            'Paintings, Print & Stickers',
+            'Sculptures & Desert Artifacts',
+            'Wearables & Textiles'
+        ];
+
+        function escapeHtml(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({
+                "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+            }[c]));
+        }
+
+        function buildAssetMap(includes) {
+            const m = new Map();
+            const assets = includes?.Asset || [];
+            for (const a of assets) m.set(a?.sys?.id, a);
+            return m;
+        }
+
+        function assetUrl(assetId, assetMap) {
+            const file = assetMap.get(assetId)?.fields?.file;
+            const url = file?.url;
+            if (!url) return null;
+            return url.startsWith("//") ? "https:" + url : url;
+        }
+
+        function normalizeProductsFromContentfulSnapshot(snapshot) {
+            const assetMap = buildAssetMap(snapshot.includes);
+
+            const items = snapshot.items || [];
+            return items.map(entry => {
+                const f = entry.fields || {};
+
+                const productName = f.productName || "Untitled";
+                const category = f.category || "";
+                const slug = f.slug || entry.sys?.id || "";
+
+                // Images: resolve linked assets from includes.Asset
+                const imageIds = (f.productImages || [])
+                    .map(link => link?.sys?.id)
+                    .filter(Boolean);
+
+                const images = imageIds
+                    .map(id => assetUrl(id, assetMap))
+                    .filter(Boolean);
+
+                // Variants:
+                // Your schema has variantUx (Object). If you store variants/prices in there, we’ll use them.
+                // Otherwise we create a single default variant so the UI still works.
+                const ux = f.variantUx || {};
+                let variants = ux?.variants;
+                let defaultKey = ux?.defaultKey;
+
+                if (!variants || typeof variants !== "object") {
+                    variants = { default: { price: ux?.price ?? null, imageIndex: 0 } };
+                    defaultKey = "default";
+                }
+
+                if (!defaultKey || !variants[defaultKey]) {
+                    defaultKey = Object.keys(variants)[0] || "default";
+                }
+
+                return {
+                    // shape compatible with your existing UI:
+                    productName,
+                    category,
+                    slug,
+                    images,
+                    variants,
+                    defaultKey,
+
+                    // extra fields you might use later:
+                    subcategory: f.subcategory || "",
+                    tags: f.tags || [],
+                    productDescription: f.productDescription || "",
+                    dimensions: f.dimensions || "",
+                    materials: f.materials || [],
+                    attributes: f.attributes || [],
+                    careInstructions: f.careInstructions || "",
+                    disclaimer: f.disclaimer || ""
+                };
+            });
+        }
 
         async function load() {
             try {
-                const res = await fetch('/data/products.json');
-                allProducts = await res.json();
-                
-                if (allProducts.length === 0) {
-                    document.getElementById('product-grid').innerHTML = '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts found. Check back later.</p>';
+                const res = await fetch('/data/shop.json', { cache: "no-store" });
+
+                if (!res.ok) {
+                    document.getElementById('product-grid').innerHTML =
+                        `<p class="text-red-400 col-span-3 text-center py-12">
+                            Could not load <span class="text-white">/data/shop.json</span> (HTTP ${res.status}).
+                            This means the snapshot file isn’t being generated/deployed yet.
+                         </p>`;
                     return;
                 }
-                
+
+                const snapshot = await res.json();
+
+                // Convert Contentful snapshot → your product list format
+                allProducts = normalizeProductsFromContentfulSnapshot(snapshot);
+
+                if (!allProducts.length) {
+                    document.getElementById('product-grid').innerHTML =
+                        '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts found. Check back later.</p>';
+                    return;
+                }
+
+                // Render filter buttons
                 document.getElementById('filters').innerHTML = categories.map(c => `
-                    <button onclick="setFilter('${c}')" class="filter-btn px-4 py-2 border border-white/20 text-sm uppercase tracking-widest ${c === 'All' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}">${c}</button>
+                    <button onclick="setFilter('${c}')" class="filter-btn px-4 py-2 border border-white/20 text-sm uppercase tracking-widest ${c === 'All' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}">
+                        ${c}
+                    </button>
                 `).join('');
-                
+
                 render();
             } catch (e) {
-                document.getElementById('product-grid').innerHTML = '<p class="text-red-400 col-span-3 text-center py-12">Error loading artifacts. The void is unresponsive.</p>';
+                console.error(e);
+                document.getElementById('product-grid').innerHTML =
+                    '<p class="text-red-400 col-span-3 text-center py-12">Error loading artifacts. The void is unresponsive.</p>';
             }
         }
 
@@ -124,27 +233,37 @@
         }
 
         function render() {
-            const items = currentFilter === 'All' ? allProducts : allProducts.filter(p => p.category === currentFilter);
-            
-            if (items.length === 0) {
-                document.getElementById('product-grid').innerHTML = '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts in this category.</p>';
+            const items = currentFilter === 'All'
+                ? allProducts
+                : allProducts.filter(p => p.category === currentFilter);
+
+            if (!items.length) {
+                document.getElementById('product-grid').innerHTML =
+                    '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts in this category.</p>';
                 return;
             }
-            
+
             document.getElementById('product-grid').innerHTML = items.map(p => {
-                const minPrice = Math.min(...Object.values(p.variants).map(v => v.price));
-                const hasVariants = Object.keys(p.variants).length > 1;
-                const v = p.variants[p.defaultKey];
+                const variantValues = Object.values(p.variants || {});
+                const prices = variantValues.map(v => Number(v?.price)).filter(n => Number.isFinite(n));
+                const minPrice = prices.length ? Math.min(...prices) : null;
+
+                const hasVariants = Object.keys(p.variants || {}).length > 1;
+
+                const v = p.variants?.[p.defaultKey];
+                const imageIndex = Number.isFinite(Number(v?.imageIndex)) ? Number(v.imageIndex) : 0;
+                const img = p.images?.[imageIndex] || p.images?.[0] || "";
+
                 return `
-                    <a href="/product/${p.slug}.html" class="product-card glass rounded-lg overflow-hidden block group">
+                    <a href="/product/${escapeHtml(p.slug)}.html" class="product-card glass rounded-lg overflow-hidden block group">
                         <div class="h-64 overflow-hidden">
-                            <img src="${p.images[v?.imageIndex || 0]}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            ${img ? `<img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">` : `<div class="w-full h-full flex items-center justify-center text-gray-600">No image</div>`}
                         </div>
                         <div class="p-6">
-                            <p class="text-xs text-cyan-400 uppercase tracking-widest mb-1">${p.category}</p>
-                            <h3 class="text-xl text-white group-hover:text-purple-300 transition">${p.productName}</h3>
+                            <p class="text-xs text-cyan-400 uppercase tracking-widest mb-1">${escapeHtml(p.category)}</p>
+                            <h3 class="text-xl text-white group-hover:text-purple-300 transition">${escapeHtml(p.productName)}</h3>
                             <div class="flex justify-between items-center mt-2">
-                                <span class="text-gray-400">From $${minPrice}</span>
+                                ${minPrice !== null ? `<span class="text-gray-400">From $${minPrice}</span>` : `<span class="text-gray-500">Price in variants</span>`}
                                 ${hasVariants ? '<span class="text-xs text-purple-400">Options</span>' : ''}
                             </div>
                         </div>
@@ -152,6 +271,7 @@
                 `;
             }).join('');
         }
+
 
         // Cart functions (same as home)
         function toggleCart() {
