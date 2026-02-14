@@ -184,7 +184,7 @@
 
         async function load() {
             try {
-                const res = await fetch('/data/shop.json', { cache: "no-store" });
+                const res = await fetch('/data/products.json', { cache: "no-store" });
 
                 if (!res.ok) {
                     document.getElementById('product-grid').innerHTML =
