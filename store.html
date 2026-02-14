@@ -132,6 +132,12 @@
       '<p class="text-red-400 col-span-3 text-center py-12">Error loading artifacts. The void is unresponsive.</p>';
   }
 }
+      function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+   
         // Cart functions (same as home)
         function toggleCart() {
             const d = document.getElementById('cart-drawer');
