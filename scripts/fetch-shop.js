@@ -29,8 +29,7 @@ function num(x, fallback = 0) {
 
 async function main() {
   if (!SPACE || !TOKEN) {
-    throw new Error(
-      "Missing env vars: CONTENTFUL_SPACE_ID and CONTENTFUL_DELIVERY_TOKEN (or CONTENTFUL_TOKEN)."
+    throw new Error("Missing env vars: CONTENTFUL_SPACE_ID and CONTENTFUL_DELIVERY_TOKEN (or CONTENTFUL_TOKEN)."
     );
   }
 
