@@ -1,14 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "**/*", "use": "@vercel/static" }
-  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/product/([^/]+)", "dest": "/product.html?slug=$1" },
     { "src": "/tour/([^/]+)", "dest": "/tour.html?slug=$1" },
-    { "src": "/field-notes/([^/]+)", "dest": "/post.html?slug=$1" },
-    { "src": "/(.*)", "dest": "/$1" }
+    { "src": "/field-notes/([^/]+)", "dest": "/post.html?slug=$1" }
   ]
 }
+
