@@ -10,6 +10,7 @@
         body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; }
         .serif { font-family: 'Cinzel', serif; }
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-text { background: linear-gradient(135deg, #fff 0%, #b026ff 50%, #00f3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .nav-link { position: relative; }
         .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #00f3ff; transition: width 0.3s; }
         .nav-link:hover::after { width: 100%; }
@@ -47,11 +48,11 @@
     </nav>
 
     <main class="pt-32 pb-24 px-6 max-w-4xl mx-auto">
-        <h1 class="serif text-5xl mb-4 text-center">Bus Tours</h1>
-        <p class="text-center text-gray-500 mb-16">Experience the portals firsthand. No shipping required.</p>
+        <h1 class="serif text-5xl mb-4 text-center gradient-text">Bus Tours</h1>
+        <p class="text-center text-gray-500 mb-16">Experience the portals firsthand. Order tickets now and let us know when you will be visiting.</p>
 
         <div class="space-y-8" id="tours-list">
-            <p class="text-gray-600 text-center py-12">Checking tour schedules...</p>
+            <p class="text-gray-600 text-center py-12">Checking available tours...</p>
         </div>
     </main>
 
