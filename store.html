@@ -133,31 +133,6 @@
   }
 }
 
-
-        function setFilter(f) {
-            currentFilter = f;
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                const active = b.textContent === f;
-                b.classList.toggle('bg-white', active);
-                b.classList.toggle('text-black', active);
-                b.classList.toggle('text-gray-400', !active);
-            });
-            render();
-        }
-
-        function render() {
-            const items = currentFilter === 'All' ? allProducts : allProducts.filter(p => p.category === currentFilter);
-            
-            if (items.length === 0) {
-                document.getElementById('product-grid').innerHTML = '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts in this category.</p>';
-                return;
-            }
-            
-            document.getElementById('product-grid').innerHTML = items.map(p => {
-                const minPrice = Math.min(...Object.values(p.variants).map(v => v.price));
-                const hasVariants = Object.keys(p.variants).length > 1;
-                const v = p.variants[p.defaultKey];
-                return `
                     <a href="/product/${p.slug}.html" class="product-card glass rounded-lg overflow-hidden block group">
                         <div class="h-64 overflow-hidden">
                             <img src="${p.images[v?.imageIndex || 0]}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
