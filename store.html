@@ -137,6 +137,83 @@
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[c]));
 }
+function render() {
+  const grid = document.getElementById('product-grid');
+
+  const items = currentFilter === 'All'
+    ? allProducts
+    : allProducts.filter(p => p.category === currentFilter);
+
+  if (!items || items.length === 0) {
+    grid.innerHTML =
+      '<p class="text-gray-600 col-span-3 text-center py-12">No artifacts in this category.</p>';
+    return;
+  }
+
+  grid.innerHTML = items.map(p => {
+    const variants = p.variants || {};
+    const variantValues = Object.values(variants);
+    const prices = variantValues
+      .map(v => Number(v?.price))
+      .filter(n => Number.isFinite(n));
+
+    const minPrice = prices.length ? Math.min(...prices) : null;
+
+    const defaultKey =
+      p.defaultKey || Object.keys(variants)[0] || "default";
+
+    const v = variants[defaultKey] || {};
+    const imageIndex =
+      Number.isFinite(Number(v.imageIndex)) ? Number(v.imageIndex) : 0;
+
+    const img =
+      (p.images && p.images[imageIndex]) ||
+      (p.images && p.images[0]) ||
+      "";
+
+    const hasVariants = Object.keys(variants).length > 1;
+
+    return `
+      <a href="/product/${escapeHtml(p.slug)}.html"
+         class="product-card glass rounded-lg overflow-hidden block group">
+
+        <div class="h-64 overflow-hidden">
+          ${img
+            ? `<img src="${img}"
+                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                    alt="${escapeHtml(p.productName)}">`
+            : `<div class="w-full h-full flex items-center justify-center text-gray-600">
+                 No image
+               </div>`
+          }
+        </div>
+
+        <div class="p-6">
+          <p class="text-xs text-cyan-400 uppercase tracking-widest mb-1">
+            ${escapeHtml(p.category || "")}
+          </p>
+
+          <h3 class="text-xl text-white group-hover:text-purple-300 transition">
+            ${escapeHtml(p.productName || "Untitled")}
+          </h3>
+
+          <div class="flex justify-between items-center mt-2">
+            ${minPrice !== null
+              ? `<span class="text-gray-400">From $${minPrice}</span>`
+              : `<span class="text-gray-500">Price in variants</span>`
+            }
+            ${hasVariants
+              ? '<span class="text-xs text-purple-400">Options</span>'
+              : ''
+            }
+          </div>
+        </div>
+
+      </a>
+    `;
+  }).join('');
+}
+
    
         // Cart functions (same as home)
         function toggleCart() {
