@@ -13,25 +13,8 @@ function getOrigin(req) {
   return process.env.URL || 'https://formagicaluseonly.com';
 }
 
-function getAllowedOrigins() {
-  const envOrigins = process.env.CHECKOUT_ALLOWED_ORIGINS || '';
-  return envOrigins
-    .split(',')
-    .map((x) => x.trim())
-    .filter(Boolean);
-}
-
-function pickCorsOrigin(reqOrigin, allowedOrigins) {
-  if (!allowedOrigins.length) return '*';
-  if (reqOrigin && allowedOrigins.includes(reqOrigin)) return reqOrigin;
-  return allowedOrigins[0];
-}
-
 export default async function handler(req, res) {
-  const allowedOrigins = getAllowedOrigins();
-  const corsOrigin = pickCorsOrigin(req.headers.origin, allowedOrigins);
-  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
-  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
