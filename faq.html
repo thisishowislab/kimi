@@ -69,30 +69,51 @@
             }
         ];
 
-        document.getElementById('faq-container').innerHTML = faqs.map((faq, idx) => `
-            <div class="glass rounded-lg cursor-pointer" onclick="toggle(${idx})">
-                <div class="p-6 flex justify-between items-center">
-                    <h3 class="text-lg text-white pr-8">${faq.q}</h3>
-                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
-                </div>
-                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
-                    ${faq.a}
-                </div>
-            </div>
-        `).join('');
+        function renderFaqs() {
+            const container = document.getElementById('faq-container');
+            if (!container) return;
 
-        function toggle(idx) {
-            const a = document.getElementById(`answer-${idx}`);
-            const i = document.getElementById(`icon-${idx}`);
-            const open = a.classList.contains('open');
-            
-            document.querySelectorAll('.answer').forEach(x => x.classList.remove('open'));
-            document.querySelectorAll('[id^="icon-"]').forEach(x => x.style.transform = 'rotate(0deg)');
-            
+            container.innerHTML = faqs.map((faq, idx) => `
+                <div class="glass rounded-lg cursor-pointer" data-faq-index="${idx}">
+                    <div class="p-6 flex justify-between items-center">
+                        <h3 class="text-lg text-white pr-8">${faq.q}</h3>
+                        <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
+                    </div>
+                    <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
+                        ${faq.a}
+                    </div>
+                </div>
+            `).join('');
+
+            container.addEventListener('click', (event) => {
+                const card = event.target.closest('[data-faq-index]');
+                if (!card) return;
+                toggleFaq(Number(card.dataset.faqIndex));
+            });
+        }
+
+        function toggleFaq(idx) {
+            const answer = document.getElementById(`answer-${idx}`);
+            const icon = document.getElementById(`icon-${idx}`);
+            if (!answer || !icon) return;
+
+            const open = answer.classList.contains('open');
+
+            document.querySelectorAll('.answer').forEach((el) => el.classList.remove('open'));
+            document.querySelectorAll('[id^="icon-"]').forEach((el) => {
+                el.style.transform = 'rotate(0deg)';
+            });
+
             if (!open) {
-                a.classList.add('open');
-                i.style.transform = 'rotate(45deg)';
+                answer.classList.add('open');
+                icon.style.transform = 'rotate(45deg)';
             }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderFaqs);
+        } else {
+            renderFaqs();
         }
     </script>
 </body>
