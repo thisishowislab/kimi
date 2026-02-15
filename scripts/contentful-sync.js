@@ -166,7 +166,7 @@ function transformTours(payload) {
       tourName: f.tourName || 'Untitled Tour',
       tourDescription: f.tourDescription || '',
       image: mapAssetUrl(tourImage),
-      stripePriceId: pickPriceId(f),
+      stripePriceId: f.stripePriceId || '',
       price: toNumber(f.price),
       requiresShipping: false,
     };
@@ -181,7 +181,7 @@ function transformDonations(payload) {
       slug: f.slug || slugify(f.tierName) || entry?.sys?.id,
       tierName: f.tierName || 'Untitled Tier',
       tierDescription: f.tierDescription || '',
-      stripePriceId: pickPriceId(f),
+      stripePriceId: f.stripePriceId || '',
       price: toNumber(f.price),
       requiresShipping: false,
     };
