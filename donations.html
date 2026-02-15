@@ -63,22 +63,8 @@
         }
 async function load() {
     try {
-        const spaceId = '{{CONTENTFUL_SPACE_ID}}';
-        const accessToken = '{{CONTENTFUL_TOKEN}}';
-        const contentType = '5YmWnOsbaqjCb367hRLpST';
-        
-        const res = await fetch(
-            `https://cdn.contentful.com/spaces/${spaceId}/entries?content_type=${contentType}&order=fields.price`,
-            { headers: { 'Authorization': `Bearer ${accessToken}` } }
-        );
-        
-        const data = await res.json();
-        const tiers = data.items.map(item => ({
-            tierName: item.fields.tierName,
-            tierDescription: item.fields.tierDescription,
-            price: item.fields.price,
-            stripePriceId: item.fields.stripePriceId
-        }));
+        const res = await fetch('/data/donations.json');
+        const tiers = await res.json();
         
         if (tiers.length === 0) {
             document.getElementById('tiers-list').innerHTML = '<p class="text-gray-600 col-span-2 text-center py-12">No donation tiers available.</p>';

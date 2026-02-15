@@ -1,24 +1,23 @@
-// Manual retrigger - call this after publishing in Contentful
-// Or set up a simple cron job to run every 5 minutes
+import { buildContentData } from '../scripts/contentful-sync.js';
 
-const { execSync } = require('child_process');
-
-module.exports = async (req, res) => {
-  // Simple secret check
-  const secret = req.query.secret;
+export default async function handler(req, res) {
+  const secret = req.query?.secret;
   if (secret !== process.env.REVALIDATE_SECRET) {
     return res.status(401).json({ error: 'Invalid secret' });
   }
 
   try {
-    // Rebuild data files
-    execSync('node api/build-data.js', { 
-      env: { ...process.env },
-      stdio: 'inherit'
+    const data = await buildContentData();
+    return res.status(200).json({
+      revalidated: true,
+      counts: {
+        products: data.products.length,
+        tours: data.tours.length,
+        donations: data.donations.length,
+        posts: data.posts.length,
+      },
     });
-    
-    res.json({ revalidated: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
-};
+}
