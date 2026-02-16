@@ -12,6 +12,7 @@
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
         .answer.open { max-height: 500px; }
+        body.faq-flipped { transform: rotate(180deg); }
     </style>
 </head>
 <body class="min-h-screen pb-24">
@@ -33,67 +34,7 @@
         <div class="space-y-4" id="faq-container"></div>
     </main>
 
-    <script>
-        const faqs = [
-            {
-                q: "Is the bus actually bigger on the inside?",
-                a: "Technically no, but perceptually yes. Portal 2 creates a recursive spatial loop that adds approximately 400 square feet of perceived volume. Bring a compass. It won't help, but bring one anyway."
-            },
-            {
-                q: "What do Mini Slabbers eat?",
-                a: "Attention, mostly. But also dried apricots and small screws. Do not feed them after midnight. We don't know what happens, and we don't want to find out."
-            },
-            {
-                q: "Can I drive the bus?",
-                a: "No. The bus drives itself when it wants to move. We haven't figured out how to stop it from relocating to the Salton Sea every third Tuesday. We just move our workshops."
-            },
-            {
-                q: "Are the portals dangerous?",
-                a: "Only if you're not paying attention. Portal 5 temporarily inverted a visitor's gravity last month. He's fine now, but he has to wear weighted boots on Tuesdays."
-            },
-            {
-                q: "Do you have WiFi?",
-                a: "We have Portal 6. It's faster than WiFi but requires you to think in binary. Your phone won't work here anyway. The Navy's radar interferes with everything except carrier pigeons."
-            },
-            {
-                q: "What's the deal with the bathroom?",
-                a: "It's a composting toilet that opens to a pocket dimension. We don't know where it goes. Please don't put anything in it that you want to see again, including regrets."
-            },
-            {
-                q: "Can I live in the bus?",
-                a: "You can try. Three people have. Two left voluntarily. One became a Mini Slabber. We don't talk about him, but he seems happy."
-            },
-            {
-                q: "Is this legal?",
-                a: "Define legal. Define reality. Define 'is.' We pay taxes to the Salton Sea Authority, which may or may not exist."
-            }
-        ];
+    <script src="/scripts/faq-page.js"></script>
 
-        document.getElementById('faq-container').innerHTML = faqs.map((faq, idx) => `
-            <div class="glass rounded-lg cursor-pointer" onclick="toggle(${idx})">
-                <div class="p-6 flex justify-between items-center">
-                    <h3 class="text-lg text-white pr-8">${faq.q}</h3>
-                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
-                </div>
-                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
-                    ${faq.a}
-                </div>
-            </div>
-        `).join('');
-
-        function toggle(idx) {
-            const a = document.getElementById(`answer-${idx}`);
-            const i = document.getElementById(`icon-${idx}`);
-            const open = a.classList.contains('open');
-            
-            document.querySelectorAll('.answer').forEach(x => x.classList.remove('open'));
-            document.querySelectorAll('[id^="icon-"]').forEach(x => x.style.transform = 'rotate(0deg)');
-            
-            if (!open) {
-                a.classList.add('open');
-                i.style.transform = 'rotate(45deg)';
-            }
-        }
-    </script>
 </body>
 </html>
