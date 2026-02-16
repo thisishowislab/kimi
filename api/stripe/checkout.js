@@ -13,6 +13,52 @@ function getOrigin(req) {
   return process.env.URL || 'https://formagicaluseonly.com';
 }
 
+function getAllowedOrigins() {
+  const envOrigins = process.env.CHECKOUT_ALLOWED_ORIGINS || '';
+  return envOrigins
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+function pickCorsOrigin(reqOrigin, allowedOrigins) {
+  if (!allowedOrigins.length) return '*';
+  if (reqOrigin && allowedOrigins.includes(reqOrigin)) return reqOrigin;
+  return allowedOrigins[0];
+}
+
+function pickStripePriceId(item = {}) {
+  return (
+    item.stripePriceId ||
+    item.priceId ||
+    item.priceID ||
+    item.stripe_price_id ||
+    ''
+  );
+}
+
+export default async function handler(req, res) {
+  const allowedOrigins = getAllowedOrigins();
+  const corsOrigin = pickCorsOrigin(req.headers.origin, allowedOrigins);
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+
+function getOrigin(req) {
+  const originHeader = req.headers.origin;
+  if (originHeader) return originHeader;
+
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const proto = req.headers['x-forwarded-proto'] || 'https';
+  if (host) return `${proto}://${host}`;
+
+  return process.env.URL || 'https://formagicaluseonly.com';
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -26,6 +72,14 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { items = [], lineItems = [], type } = req.body || {};
+    const rawItems = Array.isArray(items) && items.length ? items : lineItems;
+
+    const lineItemsForStripe = rawItems
+      .map((item) => ({
+        ...item,
+        stripePriceId: pickStripePriceId(item),
+      }))
     const { items = [], type } = req.body || {};
 
     const lineItems = items
@@ -35,6 +89,7 @@ export default async function handler(req, res) {
         quantity: Number.isFinite(Number(item.quantity)) && Number(item.quantity) > 0 ? Number(item.quantity) : 1,
       }));
 
+    if (!lineItemsForStripe.length) {
     if (!lineItems.length) {
       return res.status(400).json({ error: 'No valid Stripe price IDs were provided.' });
     }
@@ -44,7 +99,7 @@ export default async function handler(req, res) {
 
     const sessionConfig = {
       payment_method_types: ['card'],
-      line_items: lineItems,
+      line_items: lineItemsForStripe,
       mode: 'payment',
       success_url: `${origin}/success.html`,
       cancel_url: `${origin}/cancel.html`,
