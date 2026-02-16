@@ -30,70 +30,94 @@
         <h1 class="serif text-5xl mb-4 text-center">Questions</h1>
         <p class="text-center text-gray-500 mb-16">Some answers. Not all of them useful.</p>
 
-        <div class="space-y-4" id="faq-container"></div>
+        <div class="space-y-4" id="faq-container">
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="0">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">Is the bus actually bigger on the inside?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-0">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-0">Technically no, but perceptually yes. Portal 2 creates a recursive spatial loop that adds approximately 400 square feet of perceived volume. Bring a compass. It won't help, but bring one anyway.</div>
+            </div>
+
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="1">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">What do Mini Slabbers eat?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-1">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-1">Attention, mostly. But also dried apricots and small screws. Do not feed them after midnight. We don't know what happens, and we don't want to find out.</div>
+            </div>
+
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="2">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">Can I drive the bus?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-2">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-2">No. The bus drives itself when it wants to move. We haven't figured out how to stop it from relocating to the Salton Sea every third Tuesday. We just move our workshops.</div>
+            </div>
+
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="3">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">Are the portals dangerous?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-3">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-3">Only if you're not paying attention. Portal 5 temporarily inverted a visitor's gravity last month. He's fine now, but he has to wear weighted boots on Tuesdays.</div>
+            </div>
+
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="4">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">Do you have WiFi?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-4">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-4">We have Portal 6. It's faster than WiFi but requires you to think in binary. Your phone won't work here anyway. The Navy's radar interferes with everything except carrier pigeons.</div>
+            </div>
+
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="5">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">What's the deal with the bathroom?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-5">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-5">It's a composting toilet that opens to a pocket dimension. We don't know where it goes. Please don't put anything in it that you want to see again, including regrets.</div>
+            </div>
+
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="6">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">Can I live in the bus?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-6">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-6">You can try. Three people have. Two left voluntarily. One became a Mini Slabber. We don't talk about him, but he seems happy.</div>
+            </div>
+
+            <div class="glass rounded-lg cursor-pointer" data-faq-index="7">
+                <div class="p-6 flex justify-between items-center">
+                    <h3 class="text-lg text-white pr-8">Is this legal?</h3>
+                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-7">+</span>
+                </div>
+                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-7">Define legal. Define reality. Define 'is.' We pay taxes to the Salton Sea Authority, which may or may not exist.</div>
+            </div>
+        </div>
     </main>
 
     <script>
-        const faqs = [
-            {
-                q: "Is the bus actually bigger on the inside?",
-                a: "Technically no, but perceptually yes. Portal 2 creates a recursive spatial loop that adds approximately 400 square feet of perceived volume. Bring a compass. It won't help, but bring one anyway."
-            },
-            {
-                q: "What do Mini Slabbers eat?",
-                a: "Attention, mostly. But also dried apricots and small screws. Do not feed them after midnight. We don't know what happens, and we don't want to find out."
-            },
-            {
-                q: "Can I drive the bus?",
-                a: "No. The bus drives itself when it wants to move. We haven't figured out how to stop it from relocating to the Salton Sea every third Tuesday. We just move our workshops."
-            },
-            {
-                q: "Are the portals dangerous?",
-                a: "Only if you're not paying attention. Portal 5 temporarily inverted a visitor's gravity last month. He's fine now, but he has to wear weighted boots on Tuesdays."
-            },
-            {
-                q: "Do you have WiFi?",
-                a: "We have Portal 6. It's faster than WiFi but requires you to think in binary. Your phone won't work here anyway. The Navy's radar interferes with everything except carrier pigeons."
-            },
-            {
-                q: "What's the deal with the bathroom?",
-                a: "It's a composting toilet that opens to a pocket dimension. We don't know where it goes. Please don't put anything in it that you want to see again, including regrets."
-            },
-            {
-                q: "Can I live in the bus?",
-                a: "You can try. Three people have. Two left voluntarily. One became a Mini Slabber. We don't talk about him, but he seems happy."
-            },
-            {
-                q: "Is this legal?",
-                a: "Define legal. Define reality. Define 'is.' We pay taxes to the Salton Sea Authority, which may or may not exist."
-            }
-        ];
+        document.getElementById('faq-container').addEventListener('click', (event) => {
+            const card = event.target.closest('[data-faq-index]');
+            if (!card) return;
 
-        document.getElementById('faq-container').innerHTML = faqs.map((faq, idx) => `
-            <div class="glass rounded-lg cursor-pointer" onclick="toggle(${idx})">
-                <div class="p-6 flex justify-between items-center">
-                    <h3 class="text-lg text-white pr-8">${faq.q}</h3>
-                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
-                </div>
-                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
-                    ${faq.a}
-                </div>
-            </div>
-        `).join('');
+            const idx = Number(card.dataset.faqIndex);
+            const answer = document.getElementById(`answer-${idx}`);
+            const icon = document.getElementById(`icon-${idx}`);
+            if (!answer || !icon) return;
 
-        function toggle(idx) {
-            const a = document.getElementById(`answer-${idx}`);
-            const i = document.getElementById(`icon-${idx}`);
-            const open = a.classList.contains('open');
-            
-            document.querySelectorAll('.answer').forEach(x => x.classList.remove('open'));
-            document.querySelectorAll('[id^="icon-"]').forEach(x => x.style.transform = 'rotate(0deg)');
-            
+            const open = answer.classList.contains('open');
+            document.querySelectorAll('.answer').forEach((el) => el.classList.remove('open'));
+            document.querySelectorAll('[id^="icon-"]').forEach((el) => {
+                el.style.transform = 'rotate(0deg)';
+            });
+
             if (!open) {
-                a.classList.add('open');
-                i.style.transform = 'rotate(45deg)';
+                answer.classList.add('open');
+                icon.style.transform = 'rotate(45deg)';
             }
-        }
+        });
     </script>
 </body>
 </html>
