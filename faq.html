@@ -27,14 +27,17 @@
     </nav>
 
     <main class="pt-32 pb-24 px-6 max-w-3xl mx-auto">
-        <h1 class="serif text-5xl mb-4 text-center">Questions</h1>
+        <div class="flex items-center justify-between gap-4 mb-4">
+            <h1 class="serif text-5xl text-center flex-1">Questions</h1>
+            <button id="random-switch" class="glass px-4 py-2 text-xs uppercase tracking-widest hover:text-cyan-400 transition">Random Switch</button>
+        </div>
         <p class="text-center text-gray-500 mb-16">Some answers. Not all of them useful.</p>
 
         <div class="space-y-4" id="faq-container"></div>
     </main>
 
     <script>
-        const faqs = [
+        const fallbackFaqs = [
             {
                 q: "Is the bus actually bigger on the inside?",
                 a: "Technically no, but perceptually yes. Portal 2 creates a recursive spatial loop that adds approximately 400 square feet of perceived volume. Bring a compass. It won't help, but bring one anyway."
@@ -69,31 +72,79 @@
             }
         ];
 
-        document.getElementById('faq-container').innerHTML = faqs.map((faq, idx) => `
-            <div class="glass rounded-lg cursor-pointer" onclick="toggle(${idx})">
-                <div class="p-6 flex justify-between items-center">
-                    <h3 class="text-lg text-white pr-8">${faq.q}</h3>
-                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
-                </div>
-                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
-                    ${faq.a}
-                </div>
-            </div>
-        `).join('');
+        let faqs = [...fallbackFaqs];
 
-        function toggle(idx) {
-            const a = document.getElementById(`answer-${idx}`);
-            const i = document.getElementById(`icon-${idx}`);
-            const open = a.classList.contains('open');
-            
-            document.querySelectorAll('.answer').forEach(x => x.classList.remove('open'));
-            document.querySelectorAll('[id^="icon-"]').forEach(x => x.style.transform = 'rotate(0deg)');
-            
+        function normalizeFaqs(value) {
+            const source = Array.isArray(value?.faqs) ? value.faqs : value;
+            if (!Array.isArray(source)) return [];
+            return source
+                .map((item) => ({ q: item?.q || item?.question || '', a: item?.a || item?.answer || '' }))
+                .filter((item) => item.q && item.a);
+        }
+
+        function shuffleFaqs() {
+            faqs = [...faqs].sort(() => Math.random() - 0.5);
+            renderFaqs();
+        }
+
+        function renderFaqs() {
+            const container = document.getElementById('faq-container');
+            container.innerHTML = faqs.map((faq, idx) => `
+                <div class="glass rounded-lg cursor-pointer" data-faq-index="${idx}">
+                    <div class="p-6 flex justify-between items-center">
+                        <h3 class="text-lg text-white pr-8">${faq.q}</h3>
+                        <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
+                    </div>
+                    <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
+                        ${faq.a}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleFaq(idx) {
+            const answer = document.getElementById(`answer-${idx}`);
+            const icon = document.getElementById(`icon-${idx}`);
+            if (!answer || !icon) return;
+
+            const open = answer.classList.contains('open');
+
+            document.querySelectorAll('.answer').forEach((el) => el.classList.remove('open'));
+            document.querySelectorAll('[id^="icon-"]').forEach((el) => {
+                el.style.transform = 'rotate(0deg)';
+            });
+
             if (!open) {
-                a.classList.add('open');
-                i.style.transform = 'rotate(45deg)';
+                answer.classList.add('open');
+                icon.style.transform = 'rotate(45deg)';
             }
         }
+
+        async function loadFaqs() {
+            try {
+                const response = await fetch('/data/faq.json', { cache: 'no-store' });
+                if (response.ok) {
+                    const payload = await response.json();
+                    const loadedFaqs = normalizeFaqs(payload);
+                    if (loadedFaqs.length) {
+                        faqs = loadedFaqs;
+                    }
+                }
+            } catch (error) {
+                console.error('Falling back to built-in FAQ content:', error);
+            }
+
+            renderFaqs();
+        }
+
+        document.getElementById('faq-container').addEventListener('click', (event) => {
+            const card = event.target.closest('[data-faq-index]');
+            if (!card) return;
+            toggleFaq(Number(card.dataset.faqIndex));
+        });
+
+        document.getElementById('random-switch').addEventListener('click', shuffleFaqs);
+        loadFaqs();
     </script>
 </body>
 </html>
