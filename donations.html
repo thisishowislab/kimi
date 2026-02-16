@@ -118,6 +118,23 @@ async function donate(priceId) {
         alert('Unable to start donation checkout right now.');
         console.error('Donation checkout request failed:', error);
     }
+    const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            items: [{ stripePriceId: priceId, quantity: 1 }],
+            type: 'donation',
+            shipping: false
+        })
+    });
+
+    const data = await res.json();
+    if (data.url) {
+        window.location = data.url;
+        return;
+    }
+
+    console.error('Donation checkout failed:', data.error || 'Unknown error');
 }
 
         load();
