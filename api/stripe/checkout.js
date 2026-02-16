@@ -57,6 +57,25 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+
+function getOrigin(req) {
+  const originHeader = req.headers.origin;
+  if (originHeader) return originHeader;
+
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const proto = req.headers['x-forwarded-proto'] || 'https';
+  if (host) return `${proto}://${host}`;
+
+  return process.env.URL || 'https://formagicaluseonly.com';
+}
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -85,6 +104,11 @@ export default async function handler(req, res) {
         ...item,
         stripePriceId: pickStripePriceId(item),
       }))
+
+  try {
+    const { items = [], type } = req.body || {};
+
+    const lineItems = items
       .filter((item) => typeof item?.stripePriceId === 'string' && item.stripePriceId.trim())
       .map((item) => ({
         price: item.stripePriceId,
@@ -92,6 +116,7 @@ export default async function handler(req, res) {
       }));
 
     if (!lineItemsForStripe.length) {
+    if (!lineItems.length) {
       return res.status(400).json({ error: 'No valid Stripe price IDs were provided.' });
     }
 
@@ -114,6 +139,11 @@ export default async function handler(req, res) {
       payment_method_types: ['card'],
       line_items: lineItemsForStripe,
       mode: hasRecurringPrice ? 'subscription' : 'payment',
+
+    const sessionConfig = {
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
       success_url: `${origin}/success.html`,
       cancel_url: `${origin}/cancel.html`,
       billing_address_collection: 'auto',
@@ -121,6 +151,7 @@ export default async function handler(req, res) {
     };
 
     if (needsShipping && !hasRecurringPrice) {
+    if (needsShipping) {
       const shippingRates = [];
 
       if (process.env.STRIPE_SHIPPING_RATE_GROUND) {

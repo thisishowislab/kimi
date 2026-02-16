@@ -131,6 +131,58 @@
                 console.error('Donation checkout request failed:', error);
             }
         }
+async function load() {
+    try {
+        const res = await fetch('/data/donations.json');
+        const tiers = await res.json();
+        
+        if (tiers.length === 0) {
+            document.getElementById('tiers-list').innerHTML = '<p class="text-gray-600 col-span-2 text-center py-12">No donation tiers available.</p>';
+            return;
+        }
+        
+        document.getElementById('tiers-list').innerHTML = tiers.map(t => `
+            <div class="tier-card glass p-8 rounded-lg text-center">
+                <h3 class="serif text-2xl text-white mb-4">${t.tierName}</h3>
+                <p class="text-gray-400 mb-6 text-sm">${t.tierDescription}</p>
+                <div class="text-4xl text-white mb-6">$${t.price}</div>
+                <button onclick="donate('${t.stripePriceId || ''}')" ${t.stripePriceId ? '' : 'disabled'} class="w-full py-3 border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white transition uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">
+                    Contribute
+                </button>
+                <p class="text-[10px] text-gray-600 mt-4 uppercase tracking-widest">No shipping • Direct support</p>
+            </div>
+        `).join('');
+        
+    } catch (e) {
+        console.error(e);
+        document.getElementById('tiers-list').innerHTML = '<p class="text-red-400 col-span-2 text-center py-12">Error loading donation tiers.</p>';
+    }
+}
+
+async function donate(priceId) {
+    if (!priceId) {
+        console.error('Donation tier missing Stripe price ID.');
+        return;
+    }
+
+    const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            items: [{ stripePriceId: priceId, quantity: 1 }],
+            type: 'donation',
+            shipping: false
+        })
+    });
+
+    const data = await res.json();
+    if (data.url) {
+        window.location = data.url;
+        return;
+    }
+
+    console.error('Donation checkout failed:', data.error || 'Unknown error');
+}
 
         load();
     </script>
