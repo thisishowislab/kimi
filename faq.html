@@ -1,99 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>the manifestorium | faq</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <style>
-        body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; }
-        .serif { font-family: 'Cinzel', serif; }
-        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .answer.open { max-height: 500px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>the manifestorium | faq</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
+    .serif { font-family: 'Cinzel', serif; }
+    .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+
+    /* Nav underline vibe */
+    .nav-link { position: relative; }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: #00f3ff;
+      transition: width 0.3s ease;
+      opacity: 0.9;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    /* Accordion */
+    .answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .answer.open { max-height: 900px; }
+
+    /* Portal haze */
+    .portal-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .portal-bg::before{
+      content:"";
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(900px 500px at 12% 18%, rgba(176,38,255,0.12), transparent 60%),
+        radial-gradient(700px 500px at 88% 20%, rgba(0,243,255,0.10), transparent 60%),
+        radial-gradient(900px 700px at 50% 86%, rgba(176,38,255,0.07), transparent 65%);
+      filter: blur(12px);
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      0%   { transform: translate(-1.5%, -0.8%) scale(1.02); }
+      100% { transform: translate( 1.5%,  0.8%) scale(1.05); }
+    }
+
+    /* Keep content above background */
+    #page-wrap, nav, main { position: relative; z-index: 1; }
+
+    /* OZ Day flip */
+    #page-wrap.flip-day { transform: rotate(180deg); transform-origin: center; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .portal-bg::before { animation: none; }
+      .answer { transition: none; }
+      .nav-link::after { transition: none; }
+    }
+  </style>
 </head>
+
 <body class="min-h-screen pb-24">
+  <div class="portal-bg" aria-hidden="true"></div>
+
+  <div id="page-wrap">
     <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
-            <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase">
-                <a href="/community.html" class="hover:text-cyan-400">Community</a>
-                <a href="/faq.html" class="text-cyan-400">FAQ</a>
-                <a href="/contact.html" class="hover:text-cyan-400">Contact</a>
-            </div>
+      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
+
+        <!-- Desktop nav (FULL) -->
+        <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase items-center">
+          <a href="/store.html" class="nav-link hover:text-cyan-400 transition">Artifacts</a>
+          <a href="/tours.html" class="nav-link hover:text-cyan-400 transition">Tours</a>
+          <a href="/field-notes.html" class="nav-link hover:text-cyan-400 transition">Field Notes</a>
+          <a href="/community.html" class="nav-link hover:text-cyan-400 transition">Community</a>
+          <a href="/donations.html" class="nav-link text-purple-400 hover:text-purple-300 transition">Support</a>
+          <a href="/faq.html" class="nav-link text-cyan-400">FAQ</a>
+          <a href="/contact.html" class="nav-link hover:text-cyan-400 transition">Contact</a>
         </div>
+
+        <!-- Mobile menu button -->
+        <button
+          type="button"
+          onclick="toggleMobileNav()"
+          class="md:hidden text-white"
+          aria-controls="mobile-nav"
+          aria-expanded="false"
+          id="mobile-nav-button"
+        >
+          <span class="sr-only">Toggle navigation</span>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile nav (FULL) -->
+      <div id="mobile-nav" class="hidden md:hidden border-t border-white/10 bg-black/95">
+        <div class="px-6 py-4 space-y-4 text-sm uppercase tracking-widest">
+          <a href="/store.html" class="block hover:text-cyan-400">Artifacts</a>
+          <a href="/tours.html" class="block hover:text-cyan-400">Tours</a>
+          <a href="/field-notes.html" class="block hover:text-cyan-400">Field Notes</a>
+          <a href="/community.html" class="block hover:text-cyan-400">Community</a>
+          <a href="/donations.html" class="block text-purple-400 hover:text-purple-300">Support</a>
+          <a href="/faq.html" class="block text-cyan-400">FAQ</a>
+          <a href="/contact.html" class="block hover:text-cyan-400">Contact</a>
+        </div>
+      </div>
     </nav>
 
     <main class="pt-32 pb-24 px-6 max-w-3xl mx-auto">
-        <h1 class="serif text-5xl mb-4 text-center">Questions</h1>
-        <p class="text-center text-gray-500 mb-16">Some answers. Not all of them useful.</p>
+      <h1 class="serif text-5xl mb-4 text-center">Questions</h1>
+      <p class="text-center text-gray-500 mb-10">Some answers. Not all of them useful.</p>
 
-        <div class="space-y-4" id="faq-container"></div>
+      <!-- IMPORTANT: this id MUST exist or nothing renders -->
+      <div class="space-y-4" id="faq-container"></div>
+
+      <noscript>
+        <div class="mt-10 glass p-6 rounded-lg text-gray-300">
+          JavaScript is off. The bus is still on.
+        </div>
+      </noscript>
     </main>
+  </div>
 
-    <script>
-        const faqs = [
-            {
-                q: "Is the bus actually bigger on the inside?",
-                a: "Technically no, but perceptually yes. Portal 2 creates a recursive spatial loop that adds approximately 400 square feet of perceived volume. Bring a compass. It won't help, but bring one anyway."
-            },
-            {
-                q: "What do Mini Slabbers eat?",
-                a: "Attention, mostly. But also dried apricots and small screws. Do not feed them after midnight. We don't know what happens, and we don't want to find out."
-            },
-            {
-                q: "Can I drive the bus?",
-                a: "No. The bus drives itself when it wants to move. We haven't figured out how to stop it from relocating to the Salton Sea every third Tuesday. We just move our workshops."
-            },
-            {
-                q: "Are the portals dangerous?",
-                a: "Only if you're not paying attention. Portal 5 temporarily inverted a visitor's gravity last month. He's fine now, but he has to wear weighted boots on Tuesdays."
-            },
-            {
-                q: "Do you have WiFi?",
-                a: "We have Portal 6. It's faster than WiFi but requires you to think in binary. Your phone won't work here anyway. The Navy's radar interferes with everything except carrier pigeons."
-            },
-            {
-                q: "What's the deal with the bathroom?",
-                a: "It's a composting toilet that opens to a pocket dimension. We don't know where it goes. Please don't put anything in it that you want to see again, including regrets."
-            },
-            {
-                q: "Can I live in the bus?",
-                a: "You can try. Three people have. Two left voluntarily. One became a Mini Slabber. We don't talk about him, but he seems happy."
-            },
-            {
-                q: "Is this legal?",
-                a: "Define legal. Define reality. Define 'is.' We pay taxes to the Salton Sea Authority, which may or may not exist."
-            }
-        ];
+  <script>
+    // Mobile nav toggle
+    function toggleMobileNav() {
+      const menu = document.getElementById('mobile-nav');
+      const btn = document.getElementById('mobile-nav-button');
+      if (!menu || !btn) return;
+      const isHidden = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(isHidden));
+    }
 
-        document.getElementById('faq-container').innerHTML = faqs.map((faq, idx) => `
-            <div class="glass rounded-lg cursor-pointer" onclick="toggle(${idx})">
-                <div class="p-6 flex justify-between items-center">
-                    <h3 class="text-lg text-white pr-8">${faq.q}</h3>
-                    <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
-                </div>
-                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
-                    ${faq.a}
-                </div>
-            </div>
-        `).join('');
-
-        function toggle(idx) {
-            const a = document.getElementById(`answer-${idx}`);
-            const i = document.getElementById(`icon-${idx}`);
-            const open = a.classList.contains('open');
-            
-            document.querySelectorAll('.answer').forEach(x => x.classList.remove('open'));
-            document.querySelectorAll('[id^="icon-"]').forEach(x => x.style.transform = 'rotate(0deg)');
-            
-            if (!open) {
-                a.classList.add('open');
-                i.style.transform = 'rotate(45deg)';
-            }
+    // Run after DOM exists (prevents "no questions show" bugs)
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        // OZ ritual day (20th)
+        const RITUAL_FLIP_DAY = 20;
+        if (new Date().getDate() === RITUAL_FLIP_DAY) {
+          document.getElementById('page-wrap')?.classList.add('flip-day');
         }
-    </script>
+
+        // Main FAQ pool (add/edit freely)
+        const faqs = [
+        { q: "What should I bring to a tour?",
+        a: "Water. Good running shoes. Sunscreen. A hat. And the ability to keep walking even when reality tries to make eye contact." },
+      { q: "Where is the Manifestorium?",
+        a: "In the desert. In Slab City. In a bus. In a story. Follow the heat shimmer until the laws of physics start making bargaining offers." },
+      { q: "Can I just show up?",
+        a: "Sometimes. The bus accepts walk-ins the way the sky accepts weather: unpredictably and with personal opinions. Booking is cleaner." },
+      { q: "How long is a tour?",
+        a: "Long enough to forget what time is, short enough to still have to pee later. Roughly 30–60 minutes depending on portal temperament." },
+      { q: "Is the bus actually bigger on the inside?",
+        a: "Technically no, but perceptually yes. Portal 2 makes your brain do origami. Bring a compass. It won’t help, but bring one anyway." },
+      { q: "Are the portals dangerous?",
+        a: "Only if you’re disrespectful. Portal 5 inverted gravity once. Everyone survived. Ego damage varies." },
+      { q: "Do you have WiFi?",
+        a: "We have a vibe. The signal comes and goes like a rumor. Your phone will either die quietly or start receiving messages fro, 2029 or 2009. All outcomes are normal." },
+      { q: "Can I take photos inside?",
+        a: "Yes, unless something politely refuses. If a room feels camera-shy, your phone will suddenly become very interested in being in a pocket." },
+      { q: "Can I touch things?",
+        a: "Touch with your eyes first. If something wants contact, it’ll make itself obvious. If it doesn’t, it’ll make you feel like you’re being evaluated by a filing cabinet." },
+      { q: "What's the deal with the bathroom?",
+        a: "It’s a hole. A seat above a hole dug by adult children auditioning for citizenship. No chemicals. No logic. No system. No maintenence plan. Just gravity, dust, and the desert keeping a straight face. The only portal involved is the one your ego's dignity goes through." },
+      { q: "Can I buy an artifact?",
+        a: "Yes. Artifacts are adoptable. They go home with you and quietly rearrange your sense of taste over the next three weeks. We suggest not making any big life decisions until you and your artifact have fully decompressed." },
+      { q: "Do you ship?",
+        a: "Yes. Packages leave the desert with dust, love, and sometimes a stow-away mini slabber that mostly likes to borrow your scissors and leave them places youd never think to look." },
+      { q: "Do you ship internationally?",
+        a: "Yes. Packages leave the desert with dust, love, and sometimes a stow-away mini slabber. Please leave some fuit bits and water as they will be very hungry from the long trip." },
+      { q: "How long does shipping take?",
+        a: "We ship within about 7 days. Delivery time depends on distance, weather, and the postal spirits’ current emotional bandwith status." },
+      { q: "Do you accept returns?",
+        a: "Sometimes. If the item returns unchanged and unsummoned within 14 days of its arrival. If it has been through a portal, we cannor guarentee it returns in the same timeline." },
+      { q: "Do you do commissions?",
+        a: "Yes—if your idea is good, your timeline is human or human adjacent, and you understand the desert will occasionally add its own editorial notes." },
+      { q: "Is this kid-friendly?",
+        a: "If the kid is curious and can follow rules, yes. If the kid tries to lick the installation, the installation will probably win." },
+      { q: "What should I wear?",
+        a: "Desert armor: breathable layers, sun protection, and shoes you could sprint in. The bus isn’t scary. Reality just likes practical footwear." },
+      { q: "Can I drive the bus?",
+        a: "No. The bus drives itself when it wants to move. We stopped arguing and started planning around its moods like it’s a very large cat." },
+      { q: "What do Mini Slabbers eat?",
+        a: "Attention, mostly. Also dried apricots and small screws. Don’t feed them after midnight. We don’t know what happens. We don’t want to." },
+     { q: "Do Mini Slabbers have names?",
+        a: "Yes; They are unpronounceable. We use aliases like "Trip Hazard", "Tax Evasion". and "Kevin"." },
+      { q: "Can I meet a Mini Slabber?",
+        a: "Maybe. Don't look directly for or at them. Talk to the bus like its an old friend. They  hate bullies, unfair deals, and people being cruel to each other. They watch from the rafters. They see what you do, not what you claim. Bring kindness. Bring an offering. Don’t bring entitlement. They have an offering dish in their art studio treehouse" },
+      { q: "Can I buy a Mini Slabber?",
+        a: "No. They’re people. Small, strange, a little smelly, never seen. You can’t buy them, catch them, kennel them, leash them, box them, or even reliably point at them. You can buy their outhouse. You can buy their treehouses. You can leave offerings. You can hope one decides you’re safe enough to exist near." },
+      { q: "Is it legal?",
+        a: "Define legal. Define reality. Define 'is.' Some paperwork exists. Some paperwork is a ritual. Some paperwork is for fun. Most paperwork is eaten here. We cut it into little squares, place it on the tongue, and see where it leads us." },
+      { q: "What's behind the curtain?",
+        a: "Wires. Tape. Salvage. Precision. A little madness. A lot of care. The wizard is mostly logistics wearing glitter." },
+      { q: "What if I touch the wrong thing?",
+        a: "Usually nothing. Occasionally a light flickers and you become the main character for 45 seconds. It doesnt hurt nut your DNA is collected for possible future mini-slabber formation. If you return and a tiny version of you avoids contact, dont take it personally." },
+      { q: "What's the portal safety record?",
+        a: "We track when we lose tourists to a portal. Some get spit out later mostly unscathed. Our record is better than most expect but probably worse than we advertise." },
+      { q: "Why does the bus make noises?",
+        a: "Thermal expansion. Or gossip. Or it’s counting visitors. Or it’s purring. Pick the explanation that keeps you calm and walking forward." },
+      { q: "Is there shade / water on site?",
+        a: "Sometimes. We try. Bring your own water anyway. The desert respects preparation and punishes confidence like a hobby." },
+      { q: "Can I bring my dog?",
+        a: "If your dog is chill, leashed, and not negotiating with invisible residents. If your dog barks at nothing, congratulations: it sees more than you do." },
+      { q: "Can I donate or support the project?",
+        a: "Yes. Support keeps the portals lit, the bus fed, and the wizard in replacement batteries. Also: it pleases the unseen locals." },
+      { q: "Will I get lost inside?",
+        a: "Not physically. Spiritually? Probably. That’s the point. If you feel disoriented, that’s just your brain adjusting to a better storyline." },
+      { q: "What happens on the 20th?",
+        a: "OZ Day. The curtain gets checked. The wizard gets audited. Things may feel politely incorrect. Act normal. It notices panic." }
+    ];
+
+    // ---------------------------
+    // Rare secret FAQs (3% chance)
+    // ---------------------------
+    const secretFaqs = [
+      { q: "Where is the curtain?",
+        a: "If you can see it, it isn’t the curtain. If you can’t see it, stop walking like you own the hallway." },
+
+      { q: "What does Sirius know?",
+        a: "Everything that matters. He won’t tell you. He will, however, stare through you until you remember your manners." },
+
+      { q: "I heard the bus whispers names.",
+        a: "It might whisper. I havent heard names, yet. It catalogs. If you don’t want to be filed, don’t behave like an entry." }
+    ];
+
+
+        // Ultra-rare (“almost never shown”)
+        const ultraRareFaqs = [
+ {    q: "Why did the mirror blink?",
+    a: "Mirrors don’t blink. People do. If you saw it blink, it was checking whether you were the kind of visitor who lies to themselves."  },
+  {    q: "Why does the bus feel warmer in one hallway?",
+    a: "Some rooms run on electricity. Some run on attention. If the air feels thick, stop performing and start being honest. It prefers that."
+  },
+  {    q: "I heard someone say my name in there.",
+    a: "The bus doesn’t speak. It catalogs. If it used your name, you were loud in the wrong way. Next time, enter like you’re being remembered."
+  },
+  {    q: "How do I know if a Mini Slabber noticed me?",
+    a: "Your generosity will suddenly feel heavier, like it has an audience. Also: you’ll lose something small, and you won’t even be mad about it."
+  }
+];
+
+
+        const SECRET_CHANCE = 0.03;      // 3% per load
+        const ULTRA_RARE_CHANCE = 0.003; // 0.3% per load (~1 in 333)
+
+        function shuffleInPlace(arr) {
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        }
+
+        function pickFaqsForThisLoad() {
+          const count = 5 + Math.floor(Math.random() * 3); // 5–7
+          const pool = shuffleInPlace(faqs.slice());
+          const chosen = pool.slice(0, Math.min(count, pool.length));
+
+          const roll = Math.random();
+
+          // Ultra-rare swaps first
+          if (roll < ULTRA_RARE_CHANCE) {
+            const ultra = ultraRareFaqs[Math.floor(Math.random() * ultraRareFaqs.length)];
+            chosen[Math.floor(Math.random() * chosen.length)] = ultra;
+            return chosen;
+          }
+
+          // Regular secret swap
+          if (roll < ULTRA_RARE_CHANCE + SECRET_CHANCE) {
+            const secret = secretFaqs[Math.floor(Math.random() * secretFaqs.length)];
+            chosen[Math.floor(Math.random() * chosen.length)] = secret;
+          }
+
+          return chosen;
+        }
+
+        function renderFaqSet(faqSet) {
+          const container = document.getElementById('faq-container');
+          if (!container) throw new Error("Missing #faq-container. The page has no place to put questions.");
+
+          container.innerHTML = faqSet.map((faq, idx) => `
+            <div class="glass rounded-lg">
+              <button
+                class="w-full text-left p-6 flex justify-between items-center cursor-pointer"
+                type="button"
+                onclick="toggleFaq(${idx})"
+                aria-expanded="false"
+                aria-controls="answer-${idx}"
+                id="question-${idx}"
+              >
+                <h3 class="text-lg text-white pr-8">${faq.q}</h3>
+                <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
+              </button>
+
+              <div class="answer px-6 pb-6 text-gray-400 leading-relaxed"
+                   id="answer-${idx}"
+                   role="region"
+                   aria-labelledby="question-${idx}">
+                ${faq.a}
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Expose toggle function globally for onclick handlers
+        window.toggleFaq = function(idx) {
+          const a = document.getElementById(`answer-${idx}`);
+          const i = document.getElementById(`icon-${idx}`);
+          const b = document.getElementById(`question-${idx}`);
+          if (!a || !i || !b) return;
+
+          const open = a.classList.contains('open');
+
+          document.querySelectorAll('.answer').forEach(x => x.classList.remove('open'));
+          document.querySelectorAll('[id^="icon-"]').forEach(x => x.style.transform = 'rotate(0deg)');
+          document.querySelectorAll('[id^="question-"]').forEach(x => x.setAttribute('aria-expanded', 'false'));
+
+          if (!open) {
+            a.classList.add('open');
+            i.style.transform = 'rotate(45deg)';
+            b.setAttribute('aria-expanded', 'true');
+          }
+        };
+
+        function reroll() {
+          renderFaqSet(pickFaqsForThisLoad());
+        }
+
+        // Initial render
+        reroll();
+
+        // Reroll on back/forward (bfcache restore)
+        window.addEventListener('pageshow', () => reroll());
+
+        // Reroll when returning to tab
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reroll();
+        });
+
+      } catch (err) {
+        console.error(err);
+        const container = document.getElementById('faq-container');
+        if (container) {
+          container.innerHTML = `
+            <div class="glass p-6 rounded-lg">
+              <h3 class="text-lg text-white mb-2">The FAQ fell into a portal.</h3>
+              <p class="text-gray-400 text-sm">Open the console for details.</p>
+            </div>
+          `;
+        }
+      }
+    });
+  </script>
 </body>
 </html>
