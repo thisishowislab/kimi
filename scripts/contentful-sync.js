@@ -167,6 +167,7 @@ function transformTours(payload) {
       tourDescription: f.tourDescription || '',
       image: mapAssetUrl(tourImage),
       stripePriceId: pickPriceId(f),
+      stripePriceId: f.stripePriceId || '',
       price: toNumber(f.price),
       requiresShipping: false,
     };
@@ -182,6 +183,7 @@ function transformDonations(payload) {
       tierName: f.tierName || 'Untitled Tier',
       tierDescription: f.tierDescription || '',
       stripePriceId: pickPriceId(f),
+      stripePriceId: f.stripePriceId || '',
       price: toNumber(f.price),
       requiresShipping: false,
     };
