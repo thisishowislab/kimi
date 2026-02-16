@@ -13,6 +13,64 @@ function getOrigin(req) {
   return process.env.URL || 'https://formagicaluseonly.com';
 }
 
+function getAllowedOrigins() {
+  const envOrigins = process.env.CHECKOUT_ALLOWED_ORIGINS || '';
+  return envOrigins
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+function pickCorsOrigin(reqOrigin, allowedOrigins) {
+  if (!reqOrigin) return '*';
+
+  if (!allowedOrigins.length) {
+    return reqOrigin;
+  }
+
+  if (allowedOrigins.includes(reqOrigin)) {
+    return reqOrigin;
+  }
+
+  if (process.env.VERCEL_ENV === 'preview' && reqOrigin.includes('.vercel.app')) {
+    return reqOrigin;
+  }
+
+  return allowedOrigins[0] || reqOrigin;
+}
+
+function pickStripePriceId(item = {}) {
+  return (
+    item.stripePriceId ||
+    item.priceId ||
+    item.priceID ||
+    item.stripe_price_id ||
+    ''
+  );
+}
+
+export default async function handler(req, res) {
+  const allowedOrigins = getAllowedOrigins();
+  const corsOrigin = pickCorsOrigin(req.headers.origin, allowedOrigins);
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+
+function getOrigin(req) {
+  const originHeader = req.headers.origin;
+  if (originHeader) return originHeader;
+
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
+  const proto = req.headers['x-forwarded-proto'] || 'https';
+  if (host) return `${proto}://${host}`;
+
+  return process.env.URL || 'https://formagicaluseonly.com';
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -25,6 +83,28 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Stripe is not configured' });
   }
 
+
+  const requestOrigin = req.headers.origin || '';
+  if (allowedOrigins.length && requestOrigin) {
+    const allowed =
+      allowedOrigins.includes(requestOrigin) ||
+      (process.env.VERCEL_ENV === 'preview' && requestOrigin.includes('.vercel.app'));
+
+    if (!allowed) {
+      return res.status(403).json({ error: 'Checkout origin is not allowed.' });
+    }
+  }
+
+  try {
+    const { items = [], lineItems = [], type } = req.body || {};
+    const rawItems = Array.isArray(items) && items.length ? items : lineItems;
+
+    const lineItemsForStripe = rawItems
+      .map((item) => ({
+        ...item,
+        stripePriceId: pickStripePriceId(item),
+      }))
+
   try {
     const { items = [], type } = req.body || {};
 
@@ -35,12 +115,30 @@ export default async function handler(req, res) {
         quantity: Number.isFinite(Number(item.quantity)) && Number(item.quantity) > 0 ? Number(item.quantity) : 1,
       }));
 
+    if (!lineItemsForStripe.length) {
     if (!lineItems.length) {
       return res.status(400).json({ error: 'No valid Stripe price IDs were provided.' });
     }
 
     const needsShipping = type === 'product';
     const origin = getOrigin(req);
+
+    const uniquePriceIds = [...new Set(lineItemsForStripe.map((item) => item.price))];
+    const prices = await Promise.all(uniquePriceIds.map((priceId) => stripe.prices.retrieve(priceId)));
+
+    const hasRecurringPrice = prices.some((price) => Boolean(price?.recurring));
+    const hasOneTimePrice = prices.some((price) => !price?.recurring);
+
+    if (hasRecurringPrice && hasOneTimePrice) {
+      return res.status(400).json({
+        error: 'Cannot mix recurring and one-time Stripe prices in the same checkout session.',
+      });
+    }
+
+    const sessionConfig = {
+      payment_method_types: ['card'],
+      line_items: lineItemsForStripe,
+      mode: hasRecurringPrice ? 'subscription' : 'payment',
 
     const sessionConfig = {
       payment_method_types: ['card'],
@@ -52,6 +150,7 @@ export default async function handler(req, res) {
       allow_promotion_codes: true,
     };
 
+    if (needsShipping && !hasRecurringPrice) {
     if (needsShipping) {
       const shippingRates = [];
 
