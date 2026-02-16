@@ -63,22 +63,8 @@
         }
 async function load() {
     try {
-        const spaceId = '{{CONTENTFUL_SPACE_ID}}';
-        const accessToken = '{{CONTENTFUL_TOKEN}}';
-        const contentType = '5YmWnOsbaqjCb367hRLpST';
-        
-        const res = await fetch(
-            `https://cdn.contentful.com/spaces/${spaceId}/entries?content_type=${contentType}&order=fields.price`,
-            { headers: { 'Authorization': `Bearer ${accessToken}` } }
-        );
-        
-        const data = await res.json();
-        const tiers = data.items.map(item => ({
-            tierName: item.fields.tierName,
-            tierDescription: item.fields.tierDescription,
-            price: item.fields.price,
-            stripePriceId: item.fields.stripePriceId
-        }));
+        const res = await fetch('/data/donations.json');
+        const tiers = await res.json();
         
         if (tiers.length === 0) {
             document.getElementById('tiers-list').innerHTML = '<p class="text-gray-600 col-span-2 text-center py-12">No donation tiers available.</p>';
@@ -90,7 +76,7 @@ async function load() {
                 <h3 class="serif text-2xl text-white mb-4">${t.tierName}</h3>
                 <p class="text-gray-400 mb-6 text-sm">${t.tierDescription}</p>
                 <div class="text-4xl text-white mb-6">$${t.price}</div>
-                <button onclick="donate('${t.stripePriceId}')" class="w-full py-3 border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white transition uppercase tracking-widest">
+                <button onclick="donate('${t.stripePriceId || ''}')" ${t.stripePriceId ? '' : 'disabled'} class="w-full py-3 border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white transition uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed">
                     Contribute
                 </button>
                 <p class="text-[10px] text-gray-600 mt-4 uppercase tracking-widest">No shipping • Direct support</p>
@@ -104,17 +90,34 @@ async function load() {
 }
 
 async function donate(priceId) {
-    const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            items: [{ stripePriceId: priceId, quantity: 1 }],
-            type: 'donation',
-            shipping: false
-        })
-    });
-    const data = await res.json();
-    if (data.url) window.location = data.url;
+    if (!priceId) {
+        console.error('Donation tier missing Stripe price ID.');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/stripe/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: [{ stripePriceId: priceId, quantity: 1 }],
+                type: 'donation',
+                shipping: false
+            })
+        });
+
+        const data = await res.json();
+        if (data.url) {
+            window.location = data.url;
+            return;
+        }
+
+        alert(data.error || 'Unable to start donation checkout right now.');
+        console.error('Donation checkout failed:', data.error || 'Unknown error');
+    } catch (error) {
+        alert('Unable to start donation checkout right now.');
+        console.error('Donation checkout request failed:', error);
+    }
 }
 
         load();
