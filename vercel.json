@@ -1,10 +1,25 @@
 {
   "version": 2,
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/product/([^/]+)", "dest": "/product.html?slug=$1" },
-    { "src": "/tour/([^/]+)", "dest": "/tour.html?slug=$1" },
-    { "src": "/field-notes/([^/]+)", "dest": "/post.html?slug=$1" }
+  "rewrites": [
+    {
+      "source": "/product/:slug",
+      "destination": "/product.html?slug=:slug"
+    },
+    {
+      "source": "/tour/:slug",
+      "destination": "/tour.html?slug=:slug"
+    },
+    {
+      "source": "/field-notes/:slug",
+      "destination": "/post.html?slug=:slug"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/faq/",
+      "destination": "/faq.html"
+    }
   ]
 }
-
