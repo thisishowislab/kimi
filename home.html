@@ -121,9 +121,9 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(ellipse at 20% 80%, rgba(176, 38, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(0, 243, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(176, 38, 255, 0.05) 0%, transparent 70%);
+                radial-gradient(ellipse at 20% 80%, rgba(176, 38, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 243, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(176, 38, 255, 0.03) 0%, transparent 70%);
             animation: auroraShift 15s ease-in-out infinite;
         }
         
@@ -241,8 +241,8 @@
         </svg>
         
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&q=80" class="w-full h-full object-cover opacity-20">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+            <img src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&q=80" class="w-full h-full object-cover opacity-[0.12]">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40"></div>
         </div>
         
         <div class="relative z-10 text-center px-6 max-w-5xl">
@@ -420,7 +420,7 @@
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
                         ctx.strokeStyle = particles[i].color;
-                        ctx.globalAlpha = (1 - dist / 100) * 0.2;
+                        ctx.globalAlpha = (1 - dist / 100) * 0.08;
                         ctx.stroke();
                         ctx.globalAlpha = 1;
                     }

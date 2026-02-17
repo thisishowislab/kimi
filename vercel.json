@@ -20,6 +20,10 @@
     {
       "src": "/faq",
       "dest": "/faq.html"
+    },
+    {
+      "src": "/faq/",
+      "dest": "/faq.html"
     }
   ]
 }
