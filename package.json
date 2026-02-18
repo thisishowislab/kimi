@@ -6,7 +6,6 @@
     "stripe": "^14.5.0"
   },
   "scripts": {
-    "build": "node scripts/fetch-shop.js",
-    "build": "node scripts/generate-field-notes.mjs"
+    "build": "node scripts/fetch-shop.js && node scripts/generate-field-notes.mjs"
   }
 }
