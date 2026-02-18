@@ -12,7 +12,7 @@
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         input, textarea, select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
         input:focus, textarea:focus, select:focus { outline: none; border-color: #b026ff; }
-        .gradient-text { background: linear-gradient(135deg, #fff 0%, #b026ff 50%, #00f3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+     .gradient-text { background: linear-gradient(135deg, #fff 0%, #b026ff 50%, #00f3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .nav-link { position: relative; }
         .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #00f3ff; transition: width 0.3s; }
         .nav-link:hover::after { width: 100%; }
@@ -48,7 +48,7 @@
     </nav>
 
     <main class="pt-32 pb-24 px-6 max-w-2xl mx-auto">
-        <h1 class="serif text-5xl mb-4 text-center">Transmission</h1>
+          <h1 class="serif text-5xl mb-4 text-center gradient-text">Transmission</h1>
         <p class="text-center text-gray-500 mb-16">Send a message through the ether. Response time varies by void interference.</p>
 <form action="https://formspree.io/f/xaqdedye" method="POST" class="glass p-8 rounded-lg space-y-6">
     <div class="grid md:grid-cols-2 gap-6">
