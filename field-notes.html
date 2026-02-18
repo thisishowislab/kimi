@@ -56,63 +56,51 @@
         </div>
     </main>
 
-    <script>
-        console.log("field-notes script running");
+<script>
+  console.log("field-notes script running");
 
-        function toggleMobileNav() {
-            document.getElementById('mobile-nav').classList.toggle('hidden');
-        }
+  function toggleMobileNav() {
+    const nav = document.getElementById('mobile-nav');
+    if (!nav) return;
+    nav.classList.toggle('hidden');
+  }
 
-        async function load() {
-            try {
-                const res = await fetch('/data/posts.json');
-                const posts = await res.json();
-                if (!post) {
-  document.title = 'the manifestorium | not in this timeline';
-  document.getElementById('post-date').textContent = '';
-  document.getElementById('post-title').textContent = 'Not in this timeline';
-  document.getElementById('post-body').innerHTML = `
-    <p class="text-gray-400 mb-6">
-      This field note either hasn’t been written yet… or it was eaten by the archive.
-    </p>
-    <a href="/field-notes.html" class="text-xs uppercase tracking-widest text-purple-400 hover:text-purple-300 transition">
-      ← Back to Field Notes
-    </a>
-  `;
-  return;
-}
+  async function load() {
+    const listEl = document.getElementById('posts-list');
+    if (!listEl) return;
 
+    try {
+      const res = await fetch('/data/posts.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Failed to fetch /data/posts.json (${res.status})`);
 
-                
-                document.getElementById('posts-list').innerHTML = posts.map(p => `
-                 <a href="/field-notes/${p.slug}" class="glass p-8 rounded-lg block group hover:border-purple-500/50 transition">
-                        <p class="text-xs text-cyan-400 uppercase tracking-widest mb-2">${p.date}</p>
-                        <h3 class="serif text-2xl text-white mb-3 group-hover:text-purple-300 transition">${p.title}</h3>
-                        <p class="text-gray-400 text-sm line-clamp-2">${p.excerpt}</p>
-                        <span class="text-xs text-purple-400 mt-4 inline-block uppercase tracking-widest">Read more →</span>
-                    </a>
-                `).join('');
-            } catch (e) {
-                if (!post) {
-  document.title = 'the manifestorium | not in this timeline';
-  document.getElementById('post-date').textContent = '';
-  document.getElementById('post-title').textContent = 'Not in this timeline';
-  document.getElementById('post-body').innerHTML = `
-    <p class="text-gray-400 mb-6">
-      This field note either hasn’t been written yet… or it was eaten by the archive.
-    </p>
-    <a href="/field-notes.html" class="text-xs uppercase tracking-widest text-purple-400 hover:text-purple-300 transition">
-      ← Back to Field Notes
-    </a>
-  `;
-  return;
-}
+      const posts = await res.json();
+      if (!Array.isArray(posts)) throw new Error('posts.json is not an array');
 
-                
-            }
-        }
+      if (posts.length === 0) {
+        listEl.innerHTML =
+          '<p class="text-gray-600 text-center py-12">No field notes yet. Check back soon.</p>';
+        return;
+      }
 
-        load();
-    </script>
-</body>
-</html>
+      listEl.innerHTML = posts.map(p => `
+        <a href="/field-notes/${p.slug}" class="glass p-8 rounded-lg block group hover:border-purple-500/50 transition">
+          <p class="text-xs text-cyan-400 uppercase tracking-widest mb-2">${p.date ?? ''}</p>
+          <h3 class="serif text-2xl text-white mb-3 group-hover:text-purple-300 transition">${p.title ?? ''}</h3>
+          <p class="text-gray-400 text-sm line-clamp-2">${p.excerpt ?? ''}</p>
+          <span class="text-xs text-purple-400 mt-4 inline-block uppercase tracking-widest">Read more →</span>
+        </a>
+      `).join('');
+    } catch (e) {
+      console.error(e);
+      listEl.innerHTML = `
+        <div class="glass p-8 rounded-lg text-center">
+          <p class="text-red-400 mb-2">Error loading field notes.</p>
+          <p class="text-gray-500 text-xs break-words">${String(e)}</p>
+          <p class="text-gray-600 text-xs mt-4">Try opening <span class="text-cyan-400">/data/posts.json</span> directly.</p>
+        </div>
+      `;
+    }
+  }
+
+  load();
+</script>
