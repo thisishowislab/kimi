@@ -5,7 +5,9 @@
   "dependencies": {
     "stripe": "^14.5.0"
   },
-  "scripts": {
-    "build": "node scripts/fetch-shop.js && node scripts/generate-field-notes.mjs"
-  }
+"scripts": {
+  "build:shop": "node scripts/fetch-shop.js",
+  "build:posts": "node scripts/generate-field-notes.mjs",
+  "build": "npm run build:shop && npm run build:posts"
 }
+
