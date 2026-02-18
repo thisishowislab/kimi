@@ -65,11 +65,22 @@
             try {
                 const res = await fetch('/data/posts.json');
                 const posts = await res.json();
-                
-                if (posts.length === 0) {
-                    document.getElementById('posts-list').innerHTML = '<p class="text-gray-600 text-center py-12">No field notes yet. Check back soon.</p>';
-                    return;
-                }
+                if (!post) {
+  document.title = 'the manifestorium | not in this timeline';
+  document.getElementById('post-date').textContent = '';
+  document.getElementById('post-title').textContent = 'Not in this timeline';
+  document.getElementById('post-body').innerHTML = `
+    <p class="text-gray-400 mb-6">
+      This field note either hasn’t been written yet… or it was eaten by the archive.
+    </p>
+    <a href="/field-notes.html" class="text-xs uppercase tracking-widest text-purple-400 hover:text-purple-300 transition">
+      ← Back to Field Notes
+    </a>
+  `;
+  return;
+}
+
+
                 
                 document.getElementById('posts-list').innerHTML = posts.map(p => `
                  <a href="/field-notes/${p.slug}" class="glass p-8 rounded-lg block group hover:border-purple-500/50 transition">
@@ -80,7 +91,22 @@
                     </a>
                 `).join('');
             } catch (e) {
-                document.getElementById('posts-list').innerHTML = '<p class="text-red-400 text-center py-12">Error loading field notes.</p>';
+                if (!post) {
+  document.title = 'the manifestorium | not in this timeline';
+  document.getElementById('post-date').textContent = '';
+  document.getElementById('post-title').textContent = 'Not in this timeline';
+  document.getElementById('post-body').innerHTML = `
+    <p class="text-gray-400 mb-6">
+      This field note either hasn’t been written yet… or it was eaten by the archive.
+    </p>
+    <a href="/field-notes.html" class="text-xs uppercase tracking-widest text-purple-400 hover:text-purple-300 transition">
+      ← Back to Field Notes
+    </a>
+  `;
+  return;
+}
+
+                
             }
         }
 
