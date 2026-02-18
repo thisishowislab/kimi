@@ -1,12 +1,15 @@
+
 {
   "version": 2,
   "routes": [
+    { "handle": "filesystem" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/product/([^/]+)", "dest": "/product.html?slug=$1" },
     { "src": "/tour/([^/]+)", "dest": "/tour.html?slug=$1" },
+
     { "src": "/field-notes/([^/]+)\\.html", "dest": "/post.html?slug=$1" },
     { "src": "/field-notes/([^/]+)", "dest": "/post.html?slug=$1" },
-    {   "src": "/faq",   "dest": "/faq.html"   },
+   {   "src": "/faq",   "dest": "/faq.html"   },
     {      "src": "/faq/",  "dest": "/faq.html"    }
   ]
 }
