@@ -12,6 +12,57 @@ function escapeHtml(str = "") {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+function richTextToHtml(node) {
+  if (!node || typeof node !== "object") return "";
+
+  const children = (node.content || []).map(richTextToHtml).join("");
+
+  switch (node.nodeType) {
+    case "document":
+      return children;
+
+    case "paragraph":
+      return children.trim() ? `<p>${children}</p>` : "";
+
+    case "heading-1":
+      return `<h1>${children}</h1>`;
+    case "heading-2":
+      return `<h2>${children}</h2>`;
+    case "heading-3":
+      return `<h3>${children}</h3>`;
+
+    case "unordered-list":
+      return `<ul>${children}</ul>`;
+    case "ordered-list":
+      return `<ol>${children}</ol>`;
+    case "list-item":
+      return `<li>${children}</li>`;
+
+    case "blockquote":
+      return `<blockquote>${children}</blockquote>`;
+
+    case "hyperlink": {
+      const href = node.data?.uri ? escapeHtml(node.data.uri) : "#";
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer">${children}</a>`;
+    }
+
+    case "text": {
+      let text = escapeHtml(node.value || "");
+      const marks = node.marks || [];
+      for (const m of marks) {
+        if (m.type === "bold") text = `<strong>${text}</strong>`;
+        if (m.type === "italic") text = `<em>${text}</em>`;
+        if (m.type === "underline") text = `<u>${text}</u>`;
+        if (m.type === "code") text = `<code>${text}</code>`;
+      }
+      return text;
+    }
+
+    default:
+      // ignore embedded assets/entries or unknown nodes for now
+      return children;
+  }
+}
 
 function basicParagraphs(text = "") {
   // If your posts.json already includes HTML (recommended), use that instead.
