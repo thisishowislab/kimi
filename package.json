@@ -7,5 +7,6 @@
   },
   "scripts": {
     "build": "node scripts/fetch-shop.js"
+    "build": "node scripts/generate-field-notes.mjs"
   }
 }
