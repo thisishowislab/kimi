@@ -68,6 +68,8 @@
       if (!el) return;
       el.classList.toggle('hidden');
     }
+      const MAX_FAQS = 10; // change this number
+
   </script>
 
   <script>
@@ -170,26 +172,29 @@
           .filter((item) => item.q && item.a);
       }
 
-      function renderFaqs() {
-        const container = document.getElementById('faq-container');
-        if (!container) return;
+function renderFaqs() {
+  const container = document.getElementById('faq-container');
+  if (!container) return;
 
-        container.innerHTML = faqs
-          .map(
-            (faq, idx) => `
-              <div class="glass rounded-lg cursor-pointer" data-faq-index="${idx}">
-                <div class="p-6 flex justify-between items-center">
-                  <h3 class="text-lg text-white pr-8">${faq.q}</h3>
-                  <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
-                </div>
-                <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
-                  ${faq.a}
-                </div>
-              </div>
-            `
-          )
-          .join('');
-      }
+  const visibleFaqs = faqs.slice(0, MAX_FAQS);
+
+  container.innerHTML = visibleFaqs
+    .map(
+      (faq, idx) => `
+        <div class="glass rounded-lg cursor-pointer" data-faq-index="${idx}">
+          <div class="p-6 flex justify-between items-center">
+            <h3 class="text-lg text-white pr-8">${faq.q}</h3>
+            <span class="text-cyan-400 text-2xl transition-transform duration-300" id="icon-${idx}">+</span>
+          </div>
+          <div class="answer px-6 pb-6 text-gray-400 leading-relaxed" id="answer-${idx}">
+            ${faq.a}
+          </div>
+        </div>
+      `
+    )
+    .join('');
+}
+
 
       function shuffleFaqs() {
         faqs = [...faqs]
