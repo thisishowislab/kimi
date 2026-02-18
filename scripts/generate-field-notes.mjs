@@ -84,11 +84,14 @@ function renderPostHtml(post) {
   const ogImage = post.ogImage || post.image || ""; // optional if you have one
 
   // Prefer HTML content if available
-  const bodyHtml =
-    post.html ||
-    (post.body ? basicParagraphs(post.body) : "") ||
-    (post.content ? basicParagraphs(post.content) : "") ||
-    "<p class=\"text-gray-400\">No body content found.</p>";
+const bodyHtml =
+  post.html ||
+  (post.body && typeof post.body === "object" && post.body.nodeType ? richTextToHtml(post.body) : "") ||
+  (typeof post.body === "string" ? basicParagraphs(post.body) : "") ||
+  (post.content && typeof post.content === "object" && post.content.nodeType ? richTextToHtml(post.content) : "") ||
+  (typeof post.content === "string" ? basicParagraphs(post.content) : "") ||
+  "<p class=\"text-gray-400\">No body content found.</p>";
+
 
   const ogImageTags = ogImage
     ? `
