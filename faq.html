@@ -11,64 +11,47 @@
         body { background: #050505; color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; }
         .serif { font-family: 'Cinzel', serif; }
         .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-text { background: linear-gradient(135deg, #fff 0%, #b026ff 50%, #00f3ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #00f3ff; transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
         .answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
         .answer.open { max-height: 500px; }
         body.faq-flipped { transform: rotate(180deg); }
     </style>
 </head>
-
 <body class="min-h-screen pb-24">
-  <div class="portal-bg" aria-hidden="true"></div>
-
-  <div id="page-wrap">
     <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/home.html" class="serif text-xl tracking-widest text-white">THE MANIFESTORIUM</a>
+            
+            <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase items-center">
+                <a href="/store.html" class="nav-link hover:text-cyan-400 transition">Artifacts</a>
+                <a href="/tours.html" class="nav-link hover:text-cyan-400 transition">Tours</a>
+                <a href="/field-notes.html" class="nav-link hover:text-cyan-400 transition">Field Notes</a>
+                <a href="/donations.html" class="nav-link text-purple-400">Support</a>
+                <a href="/faq.html" class="nav-link hover:text-cyan-400 transition">FAQ</a>
+                <a href="/contact.html" class="nav-link hover:text-cyan-400 transition">Contact</a>
+            </div>
 
-        <!-- Desktop nav (FULL) -->
-        <div class="hidden md:flex gap-8 text-sm tracking-widest uppercase items-center">
-          <a href="/store.html" class="nav-link hover:text-cyan-400 transition">Artifacts</a>
-          <a href="/tours.html" class="nav-link hover:text-cyan-400 transition">Tours</a>
-          <a href="/field-notes.html" class="nav-link hover:text-cyan-400 transition">Field Notes</a>
-          <a href="/community.html" class="nav-link hover:text-cyan-400 transition">Community</a>
-          <a href="/donations.html" class="nav-link text-purple-400 hover:text-purple-300 transition">Support</a>
-          <a href="/faq.html" class="nav-link text-cyan-400">FAQ</a>
-          <a href="/contact.html" class="nav-link hover:text-cyan-400 transition">Contact</a>
+            <button onclick="toggleMobileNav()" class="md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
         </div>
 
-        <!-- Mobile menu button -->
-        <button
-          type="button"
-          onclick="toggleMobileNav()"
-          class="md:hidden text-white"
-          aria-controls="mobile-nav"
-          aria-expanded="false"
-          id="mobile-nav-button"
-        >
-          <span class="sr-only">Toggle navigation</span>
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Mobile nav (FULL) -->
-      <div id="mobile-nav" class="hidden md:hidden border-t border-white/10 bg-black/95">
-        <div class="px-6 py-4 space-y-4 text-sm uppercase tracking-widest">
-          <a href="/store.html" class="block hover:text-cyan-400">Artifacts</a>
-          <a href="/tours.html" class="block hover:text-cyan-400">Tours</a>
-          <a href="/field-notes.html" class="block hover:text-cyan-400">Field Notes</a>
-          <a href="/community.html" class="block hover:text-cyan-400">Community</a>
-          <a href="/donations.html" class="block text-purple-400 hover:text-purple-300">Support</a>
-          <a href="/faq.html" class="block text-cyan-400">FAQ</a>
-          <a href="/contact.html" class="block hover:text-cyan-400">Contact</a>
+        <div id="mobile-nav" class="hidden md:hidden border-t border-white/10 bg-black/95">
+            <div class="px-6 py-4 space-y-4 text-sm uppercase tracking-widest">
+                <a href="/store.html" class="block hover:text-cyan-400">Artifacts</a>
+                <a href="/tours.html" class="block hover:text-cyan-400">Tours</a>
+                <a href="/field-notes.html" class="block hover:text-cyan-400">Field Notes</a>
+                <a href="/donations.html" class="block text-purple-400">Support</a>
+                <a href="/faq.html" class="block hover:text-cyan-400">FAQ</a>
+                <a href="/contact.html" class="block hover:text-cyan-400">Contact</a>
+            </div>
         </div>
-      </div>
     </nav>
-
     <main class="pt-32 pb-24 px-6 max-w-3xl mx-auto">
-      <h1 class="serif text-5xl mb-4 text-center">Questions</h1>
+        <h1 class="serif text-5xl mb-4 text-center gradient-text">Questions</h1>
       <p class="text-center text-gray-500 mb-10">Some answers. Not all of them useful.</p>
 
       <!-- IMPORTANT: this id MUST exist or nothing renders -->
