@@ -15,9 +15,154 @@
         .nav-link { position: relative; }
         .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #00f3ff; transition: width 0.3s; }
         .nav-link:hover::after { width: 100%; }
+
+        /* Magical Portal Effect */
+        .portal-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .portal-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, #b026ff, #00f3ff, #b026ff) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: portalSpin 20s linear infinite;
+        }
+        
+        .portal-ring:nth-child(1) { width: 100%; height: 100%; animation-duration: 20s; opacity: 0.3; }
+        .portal-ring:nth-child(2) { width: 80%; height: 80%; top: 10%; left: 10%; animation-duration: 15s; animation-direction: reverse; opacity: 0.4; }
+        .portal-ring:nth-child(3) { width: 60%; height: 60%; top: 20%; left: 20%; animation-duration: 10s; opacity: 0.5; }
+        .portal-ring:nth-child(4) { width: 40%; height: 40%; top: 30%; left: 30%; animation-duration: 8s; animation-direction: reverse; opacity: 0.6; }
+        
+        @keyframes portalSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Particle Canvas */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        /* Floating Runes */
+        .rune {
+            position: absolute;
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            color: rgba(176, 38, 255, 0.3);
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-30px) rotate(10deg); opacity: 0.6; }
+        }
+        
+        /* Glowing Button Effect */
+        .glow-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .glow-btn::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, #b026ff, #00f3ff, #b026ff, #00f3ff);
+            background-size: 400% 400%;
+            border-radius: inherit;
+            z-index: -1;
+            animation: glowShift 3s ease infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .glow-btn:hover::before {
+            opacity: 1;
+        }
+        
+        @keyframes glowShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Energy Lines */
+        .energy-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #b026ff, #00f3ff, transparent);
+            animation: energyPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes energyPulse {
+            0%, 100% { opacity: 0; transform: scaleX(0); }
+            50% { opacity: 0.5; transform: scaleX(1); }
+        }
+        
+        /* Aurora Background */
+        .aurora {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(176, 38, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 243, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(176, 38, 255, 0.03) 0%, transparent 70%);
+            animation: auroraShift 15s ease-in-out infinite;
+        }
+        
+        @keyframes auroraShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(2%, -2%) scale(1.05); }
+            66% { transform: translate(-2%, 2%) scale(0.95); }
+        }
+        
+        /* Sacred Geometry */
+        .sacred-geo {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            opacity: 0.1;
+            animation: geoRotate 30s linear infinite;
+        }
+        
+        @keyframes geoRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="min-h-screen pb-24">
+    <!-- Particle Canvas -->
+    <canvas id="particles-canvas"></canvas>
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -53,6 +198,46 @@
             </div>
         </div>
     </nav>
+     <section class="relative h-screen flex items-center justify-center overflow-hidden">
+        <!-- Aurora Background -->
+        <div class="aurora"></div>
+        
+        <!-- Portal Effect -->
+        <div class="portal-container">
+            <div class="portal-ring"></div>
+            <div class="portal-ring"></div>
+            <div class="portal-ring"></div>
+            <div class="portal-ring"></div>
+        </div>
+        
+        <!-- Floating Runes -->
+        <span class="rune" style="top: 15%; left: 10%; animation-delay: 0s;">ᚠ</span>
+        <span class="rune" style="top: 25%; right: 15%; animation-delay: 1s;">ᚢ</span>
+        <span class="rune" style="bottom: 30%; left: 8%; animation-delay: 2s;">ᚦ</span>
+        <span class="rune" style="bottom: 20%; right: 12%; animation-delay: 3s;">ᚨ</span>
+        <span class="rune" style="top: 60%; left: 5%; animation-delay: 4s;">ᚱ</span>
+        <span class="rune" style="top: 40%; right: 8%; animation-delay: 5s;">ᚲ</span>
+        
+        <!-- Energy Lines -->
+        <div class="energy-line" style="top: 20%; left: 0; width: 30%; animation-delay: 0s;"></div>
+        <div class="energy-line" style="top: 70%; right: 0; width: 25%; animation-delay: 1s;"></div>
+        <div class="energy-line" style="top: 45%; left: 0; width: 20%; animation-delay: 2s;"></div>
+        
+        <!-- Sacred Geometry SVG -->
+        <svg class="sacred-geo" style="top: 10%; right: 5%;" viewBox="0 0 100 100">
+            <polygon points="50,5 95,75 5,75" fill="none" stroke="#b026ff" stroke-width="0.5"/>
+            <circle cx="50" cy="50" r="30" fill="none" stroke="#00f3ff" stroke-width="0.5"/>
+        </svg>
+        <svg class="sacred-geo" style="bottom: 15%; left: 3%; animation-direction: reverse;" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#b026ff" stroke-width="0.5"/>
+            <circle cx="50" cy="50" r="30" fill="none" stroke="#00f3ff" stroke-width="0.5"/>
+            <circle cx="50" cy="50" r="15" fill="none" stroke="#b026ff" stroke-width="0.5"/>
+        </svg>
+        
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&q=80" class="w-full h-full object-cover opacity-[0.12]">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40"></div>
+        </div>
 
     <header class="pt-32 pb-12 px-6 text-center">
         <h1 class="serif text-4xl md:text-6xl mb-4 gradient-text">Artifacts</h1>
@@ -86,6 +271,36 @@
     <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[55] hidden opacity-0 transition-opacity"></div>
 
 <script>
+     function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            drawConnections();
+            requestAnimationFrame(animateParticles);
+        }
+        
+        animateParticles();
+        
+        // Track mouse
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        // Scroll reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   function toggleMobileNav() {
     document.getElementById('mobile-nav').classList.toggle('hidden');
   }
