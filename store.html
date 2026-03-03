@@ -198,7 +198,7 @@
             </div>
         </div>
     </nav>
-     <section class="relative h-screen flex items-center justify-center overflow-hidden">
+     <section class="relative min-h-[60vh] pt-28 md:pt-32 flex items-center justify-center overflow-hidden">
         <!-- Aurora Background -->
         <div class="aurora"></div>
         
@@ -239,13 +239,14 @@
             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40"></div>
         </div>
 
-    <header class="pt-32 pb-12 px-6 text-center">
-        <h1 class="serif text-4xl md:text-6xl mb-4 gradient-text">Artifacts</h1>
-        <p class="text-gray-500 max-w-xl mx-auto">Physical manifestations available for acquisition. Objects here are grouped by temperament, not by product. Line browsed by category, follow what pulls at you and don't worry about choosing correctly. Most items exist in limited runs, small batches or single incarnations.</p>
-        <div class="flex flex-wrap justify-center gap-2 mt-8" id="filters"></div>
-    </header>
+        <div class="relative z-10 text-center px-6 py-16 max-w-3xl mx-auto">
+            <h1 class="serif text-4xl md:text-6xl mb-4 gradient-text">Artifacts</h1>
+            <p class="text-gray-500">Physical manifestations available for acquisition. Objects here are grouped by temperament, not by product. Follow what pulls at you and don't worry about choosing correctly. Most items exist in limited runs, small batches, or single incarnations.</p>
+            <div class="flex flex-wrap justify-center gap-2 mt-8" id="filters"></div>
+        </div>
+    </section>
 
-    <main class="max-w-7xl mx-auto px-6">
+    <main class="max-w-7xl mx-auto px-6 pt-6">
         <div id="product-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <p class="text-gray-600 col-span-3 text-center py-12">Summoning artifacts from the void...</p>
         </div>
